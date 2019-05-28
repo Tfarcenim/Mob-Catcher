@@ -117,7 +117,7 @@ public class ItemNetLauncher extends Item {
     return 72000;
   }
 
-  public boolean isNet(ItemStack stack) { return stack.getItem() instanceof ItemNet;}
+  public boolean isNet(ItemStack stack) { return stack.getItem() instanceof ItemNet && !stack.hasTagCompound();}
 
   /**
    * Called when the equipped item is right clicked.
