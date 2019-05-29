@@ -69,7 +69,7 @@ public class MobCatcher
     private static void helper(Item item, String name, IForgeRegistry<Item> registry) {
         item.setRegistryName(name);
         item.setTranslationKey(item.getRegistryName().toString());
-        item.setCreativeTab(CreativeTabs.REDSTONE);
+        item.setCreativeTab(CreativeTabs.COMBAT);
         MOD_ITEMS.add(item);
         registry.register(item);
     }
@@ -90,7 +90,7 @@ public class MobCatcher
 
     @GameRegistry.ObjectHolder(value = MODID)
     public static class ObjectHolders{
-        public static Item net;
-        public static Item net_launcher;
+        public static final Item net = null;
+        public static final Item net_launcher = null;
     }
 }
