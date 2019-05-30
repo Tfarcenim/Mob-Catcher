@@ -1,4 +1,4 @@
-package com.tfar.examplemod;
+package com.tfar.mobcatcher;
 
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -106,8 +106,8 @@ public class ItemNet extends Item {
       return new TextComponentTranslation(super.getTranslationKey(stack) + ".name").getUnformattedComponentText();
     return new TextComponentTranslation(super.getTranslationKey(stack) + ".name").getUnformattedComponentText() + " (" + EntityList.getTranslationName(new ResourceLocation(getID(stack))) + ")";
   }
-  public EntityNet createNet(World worldIn, EntityLivingBase shooter)
+  public EntityNet createNet(World worldIn, EntityLivingBase shooter, ItemStack stack)
   {
-    return new EntityNet(worldIn, shooter);
+    return new EntityNet(worldIn,shooter.posX,shooter.posY,shooter.posZ,stack);
   }
 }

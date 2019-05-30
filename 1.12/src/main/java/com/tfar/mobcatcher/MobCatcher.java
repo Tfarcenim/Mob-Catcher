@@ -1,10 +1,17 @@
-package com.tfar.examplemod;
+package com.tfar.mobcatcher;
 
+import net.minecraft.block.BlockDispenser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.dispenser.BehaviorProjectileDispense;
+import net.minecraft.dispenser.IPosition;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.IProjectile;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
@@ -20,6 +27,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,8 +50,17 @@ public class MobCatcher
     }
 
     @EventHandler
-    public void init(FMLInitializationEvent event)
-    {
+    public void init(FMLInitializationEvent event) {
+        BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.putObject(ObjectHolders.net, new BehaviorProjectileDispense() {
+            /**
+             * Return the projectile entity spawned by this dispense behavior.
+             */
+            @Nonnull
+            @Override
+            protected IProjectile getProjectileEntity(@Nonnull World worldIn,@Nonnull IPosition pos,@Nonnull ItemStack stack) {
+                return new EntityNet(worldIn,pos.getX(),pos.getY(),pos.getZ(),stack);
+            }
+        });
     }
 
     @SubscribeEvent
