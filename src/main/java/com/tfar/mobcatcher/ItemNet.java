@@ -108,6 +108,8 @@ public class ItemNet extends Item {
   }
   public EntityNet createNet(World worldIn, EntityLivingBase shooter, ItemStack stack)
   {
-    return new EntityNet(worldIn,shooter.posX,shooter.posY,shooter.posZ,stack);
+    ItemStack newStack = stack.copy();
+    newStack.setCount(1);
+    return new EntityNet(worldIn,shooter.posX,shooter.posY+1,shooter.posZ,newStack);
   }
 }

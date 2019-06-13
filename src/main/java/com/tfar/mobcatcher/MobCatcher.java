@@ -58,7 +58,8 @@ public class MobCatcher
             @Nonnull
             @Override
             protected IProjectile getProjectileEntity(@Nonnull World worldIn,@Nonnull IPosition pos,@Nonnull ItemStack stack) {
-                return new EntityNet(worldIn,pos.getX(),pos.getY(),pos.getZ(),stack);
+                ItemStack newStack = stack.copy(); stack.setCount(1);
+                return new EntityNet(worldIn,pos.getX(),pos.getY(),pos.getZ(),newStack);
             }
         });
     }

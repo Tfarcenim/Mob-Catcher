@@ -4,10 +4,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
@@ -34,12 +36,26 @@ public class EntityNet extends EntityThrowable {
    */
   @Override
   protected void onImpact(@Nonnull RayTraceResult result) {
-    if (world.isRemote)return;{
+    if (world.isRemote || result.entityHit instanceof EntityPlayer || this.isDead) return;
+    ItemStack netStack = getNet();
+    if (netStack.getItem() instanceof ItemNet && ((ItemNet) netStack.getItem()).containsEntity(netStack)) {
 
-      System.out.println(this.getNet());
+      EnumFacing facing = result.sideHit;
+
+      Entity entity = ((ItemNet)netStack.getItem()).getEntityFromStack(netStack, world, true);
+      BlockPos pos;
+      if (facing != null)
+      pos = this.getPosition().offset(result.sideHit);
+      else pos = new BlockPos(this.posX,this.posY,this.posZ);
+      entity.setPositionAndRotation(pos.getX() + 0.5, pos.getY() - 1, pos.getZ() + 0.5, 0, 0);
+      world.spawnEntity(entity);
+      EntityItem entityItem = new EntityItem(this.world, this.posX, this.posY, this.posZ, new ItemStack(netStack.getItem()));
+      world.spawnEntity(entityItem);
+      if (entity instanceof EntityLiving) ((EntityLiving) entity).playLivingSound();
+    } else {
 
       Entity target = result.entityHit;
-      if (!(target instanceof EntityLiving) || !target.isNonBoss() || !target.isEntityAlive()) {
+      if (!(target instanceof EntityLiving) || !target.isEntityAlive()) {
         EntityItem entityItem = new EntityItem(this.world, this.posX, this.posY, this.posZ, new ItemStack(MobCatcher.ObjectHolders.net));
         world.spawnEntity(entityItem);
       } else {
