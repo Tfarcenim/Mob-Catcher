@@ -1,18 +1,17 @@
 package com.tfar.mobcatcher;
 
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.entity.RenderSnowball;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.entity.SpriteRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 
-public class RenderNet extends RenderSnowball {
+public class RenderNet extends SpriteRenderer {
 
   private final ResourceLocation entityTexture;
 
-  public RenderNet(RenderManager renderManagerIn, Item itemIn, RenderItem itemRendererIn,ResourceLocation entityTexture) {
-    super(renderManagerIn, itemIn, itemRendererIn);
+  public RenderNet(EntityRendererManager render, ItemRenderer itemRendererIn, ResourceLocation entityTexture) {
+    super(render, itemRendererIn);
     this.entityTexture = entityTexture;
   }
 

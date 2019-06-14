@@ -1,0 +1,19 @@
+{
+  "type": "crafting_shaped",
+  "pattern": [
+    " w ",
+    "wew",
+    " w "
+  ],
+  "key": {
+    "e": {
+      "item": "minecraft:ender_pearl"
+    },
+    "w": {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "result": {
+    "item": "mobcatcher:net"
+  }
+}
