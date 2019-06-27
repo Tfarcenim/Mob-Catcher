@@ -64,12 +64,12 @@ public class ItemNet extends Item {
     if (target.getEntityWorld().isRemote) return false;
     if (target instanceof PlayerEntity  || !target.isAlive()) return false;
     if (containsEntity(stack)) return false;
-    String entityID = EntityType.getId(target.getType()).toString();
+    String entityID = EntityType.getKey(target.getType()).toString();
     if (isBlacklisted(entityID)) return false;
 
     CompoundNBT nbt = new CompoundNBT();
     nbt.putString("entity", entityID);
-    nbt.putString("id", EntityType.getId(target.getType()).toString());
+    nbt.putString("id", EntityType.getKey(target.getType()).toString());
     target.writeAdditional(nbt);
     ItemStack newStack = stack.split(1);
     newStack.setTag(nbt);

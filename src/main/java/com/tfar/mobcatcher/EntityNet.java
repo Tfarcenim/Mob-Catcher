@@ -7,14 +7,15 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.IPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
@@ -36,7 +37,7 @@ public class EntityNet extends ProjectileItemEntity {
   @Nonnull
   @Override
   protected Item func_213885_i() {
-    return Items.SLIME_BLOCK;
+    return MobCatcher.ObjectHolders.net;
   }
 
   public EntityNet(EntityType<? extends ProjectileItemEntity> entityType, double x, double y, double z,World worldIn, ItemStack stack) {
@@ -76,12 +77,12 @@ public class EntityNet extends ProjectileItemEntity {
       Entity target = entityRayTrace.getEntity();
       if (target instanceof PlayerEntity || !target.isAlive()) return;
       if (((ItemNet) stack.getItem()).containsEntity(stack)) return;
-      String entityID = EntityType.getId(target.getType()).toString();
+      String entityID = EntityType.getKey(target.getType()).toString();
       if (((ItemNet) stack.getItem()).isBlacklisted(entityID)) return;
 
       CompoundNBT nbt = new CompoundNBT();
       nbt.putString("entity", entityID);
-      nbt.putString("id", EntityType.getId(target.getType()).toString());
+      nbt.putString("id", EntityType.getKey(target.getType()).toString());
       //would use target.writeAdditional(nbt); but of course it's protected because mahjong
       Method m = ObfuscationReflectionHelper.findMethod(Entity.class, "func_213281_b", CompoundNBT.class);
       try {
@@ -106,7 +107,6 @@ public class EntityNet extends ProjectileItemEntity {
   @Override
   public void writeAdditional(CompoundNBT compound) {
     super.writeAdditional(compound);
-    ItemStack stack = getNet();
     if (!stack.isEmpty()){
       //Item item = stack.getItem();
       CompoundNBT entityData = stack.getTag();
@@ -123,12 +123,14 @@ public class EntityNet extends ProjectileItemEntity {
     super.read(compound);
     if (compound.contains("entity")) {
       ItemStack stack = new ItemStack(MobCatcher.ObjectHolders.net);
-      stack.setTag(new CompoundNBT());
-      stack.getTag().put("entity",compound.get("entity"));
+      stack.getOrCreateTag().put("entity",compound.get("entity"));
       this.stack = stack;
     }
   }
-  public ItemStack getNet(){
-    return this.stack;
+
+  @Nonnull
+  @Override
+  public IPacket<?> createSpawnPacket() {
+    return NetworkHooks.getEntitySpawningPacket(this);
   }
 }

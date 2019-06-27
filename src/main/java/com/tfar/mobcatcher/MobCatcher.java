@@ -18,6 +18,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.ObjectHolder;
@@ -72,17 +73,23 @@ public class MobCatcher
 
       e.getRegistry().register(
               EntityType.Builder
-                      .create(EntityClassification.MISC).setShouldReceiveVelocityUpdates(true).setUpdateInterval(1)
-                      .build("mobcatcher:net_type").setRegistryName("mobcatcher:net_type"));
+                      .create(EntityClassification.MISC)
+                      .setShouldReceiveVelocityUpdates(true)
+                      .setUpdateInterval(1)
+                      .setTrackingRange(128)
+                      .size(.6f,.6f)
+                      .setCustomClientFactory((spawnEntity, world) -> TYPE.create(world))
+                      .build("mobcatcher:net_type")
+                      .setRegistryName("mobcatcher:net_type"));
     }
   }
 
-  @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE,value = Dist.CLIENT)
+  @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD,value = Dist.CLIENT)
   @SuppressWarnings("unused")
   public static class ClientEvents {
     @SubscribeEvent
-    public static void registerModels(ModelRegistryEvent event) {
-      RenderingRegistry.registerEntityRenderingHandler(EntityNet.class, renderManager -> new RenderNet(renderManager, Minecraft.getInstance().getItemRenderer(),new ResourceLocation(MODID, "textures/net.png")));
+    public static void registerModels(FMLClientSetupEvent event) {
+      RenderingRegistry.registerEntityRenderingHandler(EntityNet.class, renderManager -> new RenderNet<>(renderManager, Minecraft.getInstance().getItemRenderer(),new ResourceLocation(MODID, "textures/net.png")));
     }
   }
 
