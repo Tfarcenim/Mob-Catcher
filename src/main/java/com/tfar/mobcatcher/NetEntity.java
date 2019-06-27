@@ -2,6 +2,7 @@ package com.tfar.mobcatcher;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileItemEntity;
@@ -29,8 +30,12 @@ public class NetEntity extends ProjectileItemEntity {
     super(entityType, world);
   }
 
+  public NetEntity(World worldIn, LivingEntity throwerIn) {
+    super(MobCatcher.ObjectHolders.net_type, throwerIn, worldIn);
+  }
+
   public NetEntity(double x, double y, double z, World world, ItemStack newStack) {
-    super(MobCatcher.TYPE,x,y,z,world);
+    super(MobCatcher.ObjectHolders.net_type,x,y,z,world);
     this.stack = newStack;
   }
 

@@ -126,6 +126,6 @@ public class ItemNet extends Item {
   {
     ItemStack newStack = stack.copy();
     newStack.setCount(1);
-    return new NetEntity(shooter.posX, shooter.posY + 1, shooter.posZ, worldIn, newStack);
+    return new NetEntity(shooter.posX, shooter.posY + 1.25, shooter.posZ, worldIn, newStack);
   }
 }

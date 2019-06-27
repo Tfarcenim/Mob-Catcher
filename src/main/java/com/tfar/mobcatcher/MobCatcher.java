@@ -1,7 +1,6 @@
 package com.tfar.mobcatcher;
 
 import net.minecraft.block.DispenserBlock;
-import net.minecraft.client.Minecraft;
 import net.minecraft.dispenser.IPosition;
 import net.minecraft.dispenser.ProjectileDispenseBehavior;
 import net.minecraft.entity.EntityClassification;
@@ -10,7 +9,6 @@ import net.minecraft.entity.IProjectile;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.RegistryEvent;
@@ -26,14 +24,12 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nonnull;
 
 @Mod(value = MobCatcher.MODID)
-public class MobCatcher
-{
+public class MobCatcher {
   public static final String MODID = "mobcatcher";
 
   private static Logger logger;
 
-  @ObjectHolder(MODID+":net_type")
-  public static EntityType<NetEntity> TYPE;
+
 
   public void init(FMLCommonSetupEvent event) {
     DispenserBlock.registerDispenseBehavior(ObjectHolders.net, new ProjectileDispenseBehavior() {
@@ -42,9 +38,10 @@ public class MobCatcher
        */
       @Nonnull
       @Override
-      protected IProjectile getProjectileEntity(@Nonnull World world,@Nonnull IPosition pos,@Nonnull ItemStack stack) {
-        ItemStack newStack = stack.copy(); stack.setCount(1);
-        return new NetEntity(pos.getX(),pos.getY(),pos.getZ(),world,newStack);
+      protected IProjectile getProjectileEntity(@Nonnull World world, @Nonnull IPosition pos, @Nonnull ItemStack stack) {
+        ItemStack newStack = stack.copy();
+        stack.setCount(1);
+        return new NetEntity(pos.getX(), pos.getY(), pos.getZ(), world, newStack);
       }
     });
   }
@@ -72,29 +69,29 @@ public class MobCatcher
 
       e.getRegistry().register(
               EntityType.Builder
-                      .<NetEntity>create(NetEntity::new,EntityClassification.MISC)
+                      .<NetEntity>create(NetEntity::new, EntityClassification.MISC)
                       .setShouldReceiveVelocityUpdates(true)
                       .setUpdateInterval(1)
                       .setTrackingRange(128)
-                      .size(.6f,.6f)
-                      .setCustomClientFactory((spawnEntity, world) -> TYPE.create(world))
+                      .size(.6f, .6f)
+                      .setCustomClientFactory((spawnEntity, world) -> ObjectHolders.net_type.create(world))
                       .build("mobcatcher:net_type")
                       .setRegistryName("mobcatcher:net_type"));
     }
   }
 
-  @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD,value = Dist.CLIENT)
+  @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
   @SuppressWarnings("unused")
   public static class ClientEvents {
     @SubscribeEvent
     public static void registerModels(FMLClientSetupEvent event) {
-      RenderingRegistry.registerEntityRenderingHandler(NetEntity.class, renderManager -> new RenderNet<>(renderManager, Minecraft.getInstance().getItemRenderer(),new ResourceLocation(MODID, "textures/net.png")));
+      RenderingRegistry.registerEntityRenderingHandler(NetEntity.class, NetRenderer::new);
     }
   }
 
   @ObjectHolder(value = MODID)
-  public static class ObjectHolders{
-    public static Item net;
-    public static Item net_launcher;
+  public static class ObjectHolders {
+    public static final Item net = null;
+    public static final EntityType<NetEntity> net_type = null;
   }
 }
