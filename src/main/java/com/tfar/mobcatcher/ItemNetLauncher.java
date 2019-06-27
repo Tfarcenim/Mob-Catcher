@@ -82,11 +82,10 @@ public class ItemNetLauncher extends Item {
 
           if (!worldIn.isRemote) {
             ItemNet itemNet = stackAmmo.getItem() instanceof ItemNet ? (ItemNet)stackAmmo.getItem() : (ItemNet)MobCatcher.ObjectHolders.net;
-            EntityNet entityNet = itemNet.createNet(worldIn, player, stackAmmo);
-            System.out.println(entityNet);
-            entityNet.shoot(player, player.rotationPitch, player.rotationYaw, 0, f * 3, 1);
+            NetEntity netEntity = itemNet.createNet(worldIn, player, stackAmmo);
+            netEntity.shoot(player, player.rotationPitch, player.rotationYaw, 0, f * 3, 1);
 
-            worldIn.addEntity(entityNet);
+            worldIn.addEntity(netEntity);
           }
 
           worldIn.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F);

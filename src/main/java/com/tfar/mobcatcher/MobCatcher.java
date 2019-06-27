@@ -13,7 +13,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -34,7 +33,7 @@ public class MobCatcher
   private static Logger logger;
 
   @ObjectHolder(MODID+":net_type")
-  public static EntityType<EntityNet> TYPE;
+  public static EntityType<NetEntity> TYPE;
 
   public void init(FMLCommonSetupEvent event) {
     DispenserBlock.registerDispenseBehavior(ObjectHolders.net, new ProjectileDispenseBehavior() {
@@ -45,7 +44,7 @@ public class MobCatcher
       @Override
       protected IProjectile getProjectileEntity(@Nonnull World world,@Nonnull IPosition pos,@Nonnull ItemStack stack) {
         ItemStack newStack = stack.copy(); stack.setCount(1);
-        return new EntityNet(pos.getX(),pos.getY(),pos.getZ(),world,newStack);
+        return new NetEntity(pos.getX(),pos.getY(),pos.getZ(),world,newStack);
       }
     });
   }
@@ -73,7 +72,7 @@ public class MobCatcher
 
       e.getRegistry().register(
               EntityType.Builder
-                      .create(EntityClassification.MISC)
+                      .<NetEntity>create(NetEntity::new,EntityClassification.MISC)
                       .setShouldReceiveVelocityUpdates(true)
                       .setUpdateInterval(1)
                       .setTrackingRange(128)
@@ -89,7 +88,7 @@ public class MobCatcher
   public static class ClientEvents {
     @SubscribeEvent
     public static void registerModels(FMLClientSetupEvent event) {
-      RenderingRegistry.registerEntityRenderingHandler(EntityNet.class, renderManager -> new RenderNet<>(renderManager, Minecraft.getInstance().getItemRenderer(),new ResourceLocation(MODID, "textures/net.png")));
+      RenderingRegistry.registerEntityRenderingHandler(NetEntity.class, renderManager -> new RenderNet<>(renderManager, Minecraft.getInstance().getItemRenderer(),new ResourceLocation(MODID, "textures/net.png")));
     }
   }
 

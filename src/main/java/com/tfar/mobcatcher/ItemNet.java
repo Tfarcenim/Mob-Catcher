@@ -122,10 +122,10 @@ public class ItemNet extends Item {
     return new TranslationTextComponent(I18n.format(super.getTranslationKey(stack) + ".name") +": "+ I18n.format(s1));
 
   }
-  public EntityNet createNet(World worldIn, LivingEntity shooter, ItemStack stack)
+  public NetEntity createNet(World worldIn, LivingEntity shooter, ItemStack stack)
   {
     ItemStack newStack = stack.copy();
     newStack.setCount(1);
-    return new EntityNet(shooter.posX, shooter.posY + 1, shooter.posZ, worldIn, newStack);
+    return new NetEntity(shooter.posX, shooter.posY + 1, shooter.posZ, worldIn, newStack);
   }
 }

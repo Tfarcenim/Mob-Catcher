@@ -21,15 +21,15 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class EntityNet extends ProjectileItemEntity {
+public class NetEntity extends ProjectileItemEntity {
 
   protected ItemStack stack;
 
-  public EntityNet(EntityType<? extends ProjectileItemEntity> entityType, World world) {
+  public NetEntity(EntityType<? extends ProjectileItemEntity> entityType, World world) {
     super(entityType, world);
   }
 
-  public EntityNet(double x, double y, double z, World world, ItemStack newStack) {
+  public NetEntity(double x, double y, double z, World world, ItemStack newStack) {
     super(MobCatcher.TYPE,x,y,z,world);
     this.stack = newStack;
   }
@@ -40,7 +40,7 @@ public class EntityNet extends ProjectileItemEntity {
     return MobCatcher.ObjectHolders.net;
   }
 
-  public EntityNet(EntityType<? extends ProjectileItemEntity> entityType, double x, double y, double z,World worldIn, ItemStack stack) {
+  public NetEntity(EntityType<? extends ProjectileItemEntity> entityType, double x, double y, double z, World worldIn, ItemStack stack) {
     super(entityType, x, y, z,worldIn);
     this.stack = stack;
   }
@@ -54,6 +54,11 @@ public class EntityNet extends ProjectileItemEntity {
   protected void onImpact(@Nonnull RayTraceResult result) {
     if (world.isRemote || !this.isAlive()) return;
     RayTraceResult.Type type = result.getType();
+
+    if (stack == null){
+      this.remove();
+      return;
+    }
 
     if (((ItemNet)stack.getItem()).containsEntity(stack)){
 
