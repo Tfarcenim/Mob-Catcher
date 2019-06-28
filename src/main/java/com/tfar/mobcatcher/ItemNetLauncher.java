@@ -122,7 +122,7 @@ public class ItemNetLauncher extends Item {
   }
 
   public boolean isFilledNet(ItemStack stack){
-    return stack.getItem() instanceof ItemNet && ((ItemNet)stack.getItem()).containsEntity(stack);
+    return stack.getItem() instanceof ItemNet && ItemNet.containsEntity(stack);
   }
   /**
    * Called when the equipped item is right clicked.

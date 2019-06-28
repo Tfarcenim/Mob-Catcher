@@ -36,10 +36,6 @@ public class ItemNet extends Item {
     return (containsEntity(stack)) ? 1 : 64;
   }
 
-  public boolean containsEntity(ItemStack stack) {
-    return stack.hasTag() && stack.getTag().contains("entity");
-  }
-
   @Override
   @Nonnull
   public ActionResultType onItemUse(ItemUseContext context) {
@@ -47,12 +43,11 @@ public class ItemNet extends Item {
     if (player == null)return ActionResultType.FAIL;
     Hand hand = Hand.MAIN_HAND;
     ItemStack stack = player.getHeldItemMainhand();
-    if (player.getEntityWorld().isRemote) return ActionResultType.FAIL;
-    if (!containsEntity(stack)) return ActionResultType.FAIL;
+    if (player.getEntityWorld().isRemote || !containsEntity(stack)) return ActionResultType.FAIL;
     Entity entity = getEntityFromStack(stack, player.world, true);
     BlockPos blockPos = context.getPos();
     entity.setPositionAndRotation(blockPos.getX() + 0.5, blockPos.getY() + 1, blockPos.getZ() + 0.5, 0, 0);
-    stack.setTag(new CompoundNBT());
+    stack.setTag(null);
     player.setHeldItem(hand, stack);
     player.world.addEntity(entity);
   //  if (entity instanceof LivingEntity) ((LivingEntity) entity).playSound();
@@ -61,30 +56,25 @@ public class ItemNet extends Item {
 
   @Override
   public boolean itemInteractionForEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
-    if (target.getEntityWorld().isRemote) return false;
-    if (target instanceof PlayerEntity  || !target.isAlive()) return false;
-    if (containsEntity(stack)) return false;
+    if (target.getEntityWorld().isRemote || target instanceof PlayerEntity || !target.isAlive() || containsEntity(stack))
+      return false;
     String entityID = EntityType.getKey(target.getType()).toString();
     if (isBlacklisted(entityID)) return false;
-
+    ItemStack newStack = stack.copy();
     CompoundNBT nbt = new CompoundNBT();
     nbt.putString("entity", entityID);
     nbt.putString("id", EntityType.getKey(target.getType()).toString());
     target.writeAdditional(nbt);
-    ItemStack newStack = stack.split(1);
-    newStack.setTag(nbt);
+    ItemStack newerStack = newStack.split(1);
+    newerStack.setTag(nbt);
     player.swingArm(hand);
-    player.setHeldItem(hand, stack);
-    player.addItemStackToInventory(newStack);
+    player.setHeldItem(hand, newStack);
+    player.addItemStackToInventory(newerStack);
     target.remove();
     player.getCooldownTracker().setCooldown(this, 5);
     return true;
   }
 
-
-  public boolean isBlacklisted(String entity) {
-    return false;
-  }
 
   @Override
   @OnlyIn(Dist.CLIENT)
@@ -93,22 +83,12 @@ public class ItemNet extends Item {
 
    // tooltip.add(new StringTextComponent(stack.getOrCreateTag().toString()));
     if (containsEntity(stack))
-      if (getID(stack) != null) {
+      if (!getID(stack).isEmpty()) {
         String s0 = "entity." + getID(stack);
-        String s1 = s0.replace(':','.');//replaces all occurrences of 'a' to 'e'
+        String s1 = s0.replace(':','.');
         tooltip.add(new StringTextComponent(I18n.format(s1)));
         tooltip.add(new StringTextComponent("Health: " + stack.getTag().getDouble("Health")));
       }
-  }
-
-  public Entity getEntityFromStack(ItemStack stack, World world, boolean withInfo) {
-    Entity entity = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(stack.getTag().getString("entity"))).create(world);
-    if (withInfo) entity.read(stack.getTag());
-    return entity;
-  }
-
-  public String getID(ItemStack stack) {
-    return stack.getOrCreateTag().getString("entity");
   }
 
   @Override
@@ -128,4 +108,26 @@ public class ItemNet extends Item {
     newStack.setCount(1);
     return new NetEntity(shooter.posX, shooter.posY + 1.25, shooter.posZ, worldIn, newStack);
   }
+
+  //helper methods
+
+  public static boolean containsEntity(ItemStack stack) {
+    return stack.hasTag() && stack.getTag().contains("entity");
+  }
+
+  public static String getID(ItemStack stack) {
+    return stack.getOrCreateTag().getString("entity");
+  }
+
+  public static boolean isBlacklisted(String entity) {
+    return false;
+  }
+
+  public static Entity getEntityFromStack(ItemStack stack, World world, boolean withInfo) {
+    Entity entity = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(stack.getTag().getString("entity"))).create(world);
+    if (withInfo) entity.read(stack.getTag());
+    return entity;
+  }
+
+
 }

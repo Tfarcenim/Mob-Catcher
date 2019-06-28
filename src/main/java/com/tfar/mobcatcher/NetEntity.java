@@ -22,6 +22,8 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import static com.tfar.mobcatcher.ItemNet.containsEntity;
+
 public class NetEntity extends ProjectileItemEntity {
 
   protected ItemStack stack;
@@ -65,30 +67,30 @@ public class NetEntity extends ProjectileItemEntity {
       return;
     }
 
-    if (((ItemNet)stack.getItem()).containsEntity(stack)){
+    if (containsEntity(stack)){
 
-      Entity entity = ((ItemNet)stack.getItem()).getEntityFromStack(stack, world, true);
+      Entity entity = ItemNet.getEntityFromStack(stack, world, true);
       BlockPos pos;
       if (type == RayTraceResult.Type.ENTITY)
       pos = ((EntityRayTraceResult)result).getEntity().getPosition();
       else
         pos = ((BlockRayTraceResult)result).getPos();
       entity.setPositionAndRotation(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0);
-      stack.setTag(new CompoundNBT());
+      stack.setTag(null);
       world.addEntity(entity);
       ItemEntity emptynet = new ItemEntity(this.world, this.posX, this.posY, this.posZ, new ItemStack(stack.getItem()));
       world.addEntity(emptynet);
     }
 
-    if (!((ItemNet)stack.getItem()).containsEntity(stack)){
+    if (!containsEntity(stack)) {
 
     if (type == RayTraceResult.Type.ENTITY) {
       EntityRayTraceResult entityRayTrace = (EntityRayTraceResult) result;
       Entity target = entityRayTrace.getEntity();
       if (target instanceof PlayerEntity || !target.isAlive()) return;
-      if (((ItemNet) stack.getItem()).containsEntity(stack)) return;
+      if (containsEntity(stack)) return;
       String entityID = EntityType.getKey(target.getType()).toString();
-      if (((ItemNet) stack.getItem()).isBlacklisted(entityID)) return;
+      if (ItemNet.isBlacklisted(entityID)) return;
 
       CompoundNBT nbt = new CompoundNBT();
       nbt.putString("entity", entityID);
