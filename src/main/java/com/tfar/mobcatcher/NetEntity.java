@@ -26,7 +26,7 @@ import static com.tfar.mobcatcher.ItemNet.containsEntity;
 
 public class NetEntity extends ProjectileItemEntity {
 
-  protected ItemStack stack;
+  protected ItemStack stack = ItemStack.EMPTY;
 
   public NetEntity(EntityType<? extends ProjectileItemEntity> entityType, World world) {
     super(entityType, world);
@@ -119,7 +119,7 @@ public class NetEntity extends ProjectileItemEntity {
   @Override
   public void writeAdditional(CompoundNBT compound) {
     super.writeAdditional(compound);
-    if (!stack.isEmpty()){
+    if (stack != null && !stack.isEmpty()){
       //Item item = stack.getItem();
       CompoundNBT entityData = stack.getTag();
       if (stack.hasTag())

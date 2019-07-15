@@ -98,10 +98,9 @@ public class ItemNet extends Item {
       return new TranslationTextComponent(super.getTranslationKey(stack) + ".name");
     String s0 = "entity." + getID(stack);
     String s1 = s0.replace(':','.');//replaces all occurrences of 'a' to 'e'
-
     return new TranslationTextComponent(I18n.format(super.getTranslationKey(stack) + ".name") +": "+ I18n.format(s1));
-
   }
+
   public NetEntity createNet(World worldIn, LivingEntity shooter, ItemStack stack)
   {
     ItemStack newStack = stack.copy();
@@ -111,7 +110,7 @@ public class ItemNet extends Item {
 
   //helper methods
 
-  public static boolean containsEntity(ItemStack stack) {
+  public static boolean containsEntity(@Nonnull ItemStack stack) {
     return stack.hasTag() && stack.getTag().contains("entity");
   }
 
