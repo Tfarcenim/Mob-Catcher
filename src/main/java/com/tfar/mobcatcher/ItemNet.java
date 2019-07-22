@@ -97,7 +97,7 @@ public class ItemNet extends Item {
     if (!containsEntity(stack))
       return new TranslationTextComponent(super.getTranslationKey(stack) + ".name");
     String s0 = "entity." + getID(stack);
-    String s1 = s0.replace(':','.');//replaces all occurrences of 'a' to 'e'
+    String s1 = s0.replace(':','.');
     return new TranslationTextComponent(I18n.format(super.getTranslationKey(stack) + ".name") +": "+ I18n.format(s1));
   }
 

@@ -127,6 +127,11 @@ public class NetEntity extends ProjectileItemEntity {
     }
   }
 
+  @Override
+  public void readAdditional(CompoundNBT compound) {
+    super.readAdditional(compound);
+  }
+
   /**
    * (abstract) Protected helper method to read subclass entity data from NBT.
    */
