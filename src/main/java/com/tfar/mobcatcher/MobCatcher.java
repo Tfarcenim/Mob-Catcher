@@ -29,24 +29,6 @@ public class MobCatcher {
 
   private static Logger logger;
 
-
-
-  public void init(FMLCommonSetupEvent event) {
-    DispenserBlock.registerDispenseBehavior(ObjectHolders.net, new ProjectileDispenseBehavior() {
-      /**
-       * Return the projectile entity spawned by this dispense behavior.
-       */
-      @Nonnull
-      @Override
-      protected IProjectile getProjectileEntity(@Nonnull World world, @Nonnull IPosition pos, @Nonnull ItemStack stack) {
-        ItemStack newStack = stack.copy();
-        stack.setCount(1);
-        return new NetEntity(pos.getX(), pos.getY(), pos.getZ(), world, newStack);
-      }
-    });
-  }
-
-
   @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
   @SuppressWarnings("unused")
   public static class RegistryEvents {
@@ -77,6 +59,21 @@ public class MobCatcher {
                       .setCustomClientFactory((spawnEntity, world) -> ObjectHolders.net_type.create(world))
                       .build("mobcatcher:net_type")
                       .setRegistryName("mobcatcher:net_type"));
+    }
+    @SubscribeEvent
+    public static void init(FMLCommonSetupEvent event) {
+      DispenserBlock.registerDispenseBehavior(ObjectHolders.net, new ProjectileDispenseBehavior() {
+        /**
+         * Return the projectile entity spawned by this dispense behavior.
+         */
+        @Nonnull
+        @Override
+        protected IProjectile getProjectileEntity(@Nonnull World world, @Nonnull IPosition pos, @Nonnull ItemStack stack) {
+          ItemStack newStack = stack.copy();
+          newStack.setCount(1);
+          return new NetEntity(pos.getX(), pos.getY(), pos.getZ(), world, newStack);
+        }
+      });
     }
   }
 

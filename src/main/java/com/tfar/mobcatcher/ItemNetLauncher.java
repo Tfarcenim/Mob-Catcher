@@ -1,5 +1,6 @@
 package com.tfar.mobcatcher;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -8,7 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.*;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -25,31 +26,31 @@ public class ItemNetLauncher extends Item {
 
   protected ItemStack findNet(PlayerEntity player) {
     ItemStack stack = player.getHeldItemMainhand();
-    if (this.isCaptureMode(stack)){
-    if (this.isEmptyNet(player.getHeldItem(Hand.OFF_HAND))) {
+    if (isCaptureMode(stack)){
+    if (isEmptyNet(player.getHeldItem(Hand.OFF_HAND))) {
       return player.getHeldItem(Hand.OFF_HAND);
-    } else if (this.isEmptyNet(player.getHeldItem(Hand.MAIN_HAND))) {
+    } else if (isEmptyNet(player.getHeldItem(Hand.MAIN_HAND))) {
       return player.getHeldItem(Hand.MAIN_HAND);
     } else {
       for (int i = 0; i < player.inventory.getSizeInventory(); ++i) {
         ItemStack itemstack = player.inventory.getStackInSlot(i);
 
-        if (this.isEmptyNet(itemstack)) {
+        if (isEmptyNet(itemstack)) {
           return itemstack;
         }
       }
     }
       return ItemStack.EMPTY;
     }
-    if (this.isFilledNet(player.getHeldItem(Hand.OFF_HAND))) {
+    if (isFilledNet(player.getHeldItem(Hand.OFF_HAND))) {
       return player.getHeldItem(Hand.OFF_HAND);
-    } else if (this.isFilledNet(player.getHeldItem(Hand.MAIN_HAND))) {
+    } else if (isFilledNet(player.getHeldItem(Hand.MAIN_HAND))) {
       return player.getHeldItem(Hand.MAIN_HAND);
     } else {
       for (int i = 0; i < player.inventory.getSizeInventory(); ++i) {
         ItemStack itemstack = player.inventory.getStackInSlot(i);
 
-        if (this.isFilledNet(itemstack)) {
+        if (isFilledNet(itemstack)) {
           return itemstack;
         }
       }
@@ -117,13 +118,6 @@ public class ItemNetLauncher extends Item {
     return 72000;
   }
 
-  public boolean isEmptyNet(ItemStack stack) {
-    return stack.getItem() instanceof ItemNet && !stack.hasTag();
-  }
-
-  public boolean isFilledNet(ItemStack stack){
-    return stack.getItem() instanceof ItemNet && ItemNet.containsEntity(stack);
-  }
   /**
    * Called when the equipped item is right clicked.
    */
@@ -132,14 +126,12 @@ public class ItemNetLauncher extends Item {
     ItemStack stack = player.getHeldItem(hand);
     if (player.isSneaking()){
       CompoundNBT nbt = stack.getOrCreateTag();
-      boolean capture = this.isCaptureMode(stack);
+      boolean capture = isCaptureMode(stack);
       nbt.putBoolean("capture",!capture);
       stack.setTag(nbt);
+      player.sendStatusMessage(new TranslationTextComponent(capture ? "mobcatcher.releasing" : "mobcatcher.capturing"),true);
       return new ActionResult<>(ActionResultType.SUCCESS, stack);
     }
-
-    boolean capture = this.isCaptureMode(stack);
-
     boolean hasAmmo = !this.findNet(player).isEmpty();
 
     if (!player.abilities.isCreativeMode && !hasAmmo) {
@@ -150,15 +142,21 @@ public class ItemNetLauncher extends Item {
     }
   }
 
-  public boolean isCaptureMode(ItemStack stack){
-    return stack.getOrCreateTag().getBoolean("capture");
+  @Override
+  @Nonnull
+  public ITextComponent getDisplayName(@Nonnull ItemStack stack) {
+    return new TranslationTextComponent(I18n.format(super.getTranslationKey(stack)) + " ("+I18n.format(isCaptureMode(stack) ? "mobcatcher.capturing": "mobcatcher.releasing")+ ")");
   }
 
-  @Override
-  @OnlyIn(Dist.CLIENT)
-  public void addInformation(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-    if (world == null)return;
-    if(this.isCaptureMode(stack))tooltip.add(new StringTextComponent("Capturing"));
-    else tooltip.add(new StringTextComponent("Releasing"));
+  //helpers
+  public static boolean isCaptureMode(ItemStack stack){
+    return stack.getOrCreateTag().getBoolean("capture");
   }
+  public static boolean isEmptyNet(ItemStack stack) {
+    return stack.getItem() instanceof ItemNet && !stack.hasTag();
+  }
+  public static boolean isFilledNet(ItemStack stack){
+    return stack.getItem() instanceof ItemNet && ItemNet.containsEntity(stack);
+  }
+
 }

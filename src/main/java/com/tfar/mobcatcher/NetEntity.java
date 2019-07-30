@@ -26,15 +26,15 @@ import static com.tfar.mobcatcher.ItemNet.containsEntity;
 
 public class NetEntity extends ProjectileItemEntity {
 
-  protected ItemStack stack = ItemStack.EMPTY;
+  public ItemStack stack = ItemStack.EMPTY;
 
   public NetEntity(EntityType<? extends ProjectileItemEntity> entityType, World world) {
     super(entityType, world);
   }
 
-  public NetEntity(World worldIn, LivingEntity throwerIn) {
-    super(MobCatcher.ObjectHolders.net_type, throwerIn, worldIn);
-  }
+ // public NetEntity(World worldIn, LivingEntity throwerIn) {
+ //   super(MobCatcher.ObjectHolders.net_type, throwerIn, worldIn);
+  //}
 
   public NetEntity(double x, double y, double z, World world, ItemStack newStack) {
     super(MobCatcher.ObjectHolders.net_type,x,y,z,world);
@@ -45,11 +45,6 @@ public class NetEntity extends ProjectileItemEntity {
   @Override
   protected Item func_213885_i() {
     return MobCatcher.ObjectHolders.net;
-  }
-
-  public NetEntity(EntityType<? extends ProjectileItemEntity> entityType, double x, double y, double z, World worldIn, ItemStack stack) {
-    super(entityType, x, y, z,worldIn);
-    this.stack = stack;
   }
 
   /**
@@ -82,7 +77,7 @@ public class NetEntity extends ProjectileItemEntity {
       world.addEntity(emptynet);
     }
 
-    if (!containsEntity(stack)) {
+    else if (!containsEntity(stack)) {
 
     if (type == RayTraceResult.Type.ENTITY) {
       EntityRayTraceResult entityRayTrace = (EntityRayTraceResult) result;
@@ -116,33 +111,17 @@ public class NetEntity extends ProjectileItemEntity {
     this.remove();
   }
 
-  @Override
-  public void writeAdditional(CompoundNBT compound) {
-    super.writeAdditional(compound);
-    if (stack != null && !stack.isEmpty()){
-      //Item item = stack.getItem();
-      CompoundNBT entityData = stack.getTag();
-      if (stack.hasTag())
-      compound.put("entity",entityData);
+  public void writeAdditional(CompoundNBT p_213281_1_) {
+    super.writeAdditional(p_213281_1_);
+    if (!stack.isEmpty()) {
+      p_213281_1_.put("mobcatcher", stack.write(stack.getOrCreateTag()));
     }
+
   }
 
-  @Override
-  public void readAdditional(CompoundNBT compound) {
-    super.readAdditional(compound);
-  }
-
-  /**
-   * (abstract) Protected helper method to read subclass entity data from NBT.
-   */
-  @Override
-  public void read(CompoundNBT compound) {
-    super.read(compound);
-    if (compound.contains("entity")) {
-      ItemStack stack = new ItemStack(MobCatcher.ObjectHolders.net);
-      stack.getOrCreateTag().put("entity",compound.get("entity"));
-      this.stack = stack;
-    }
+  public void readAdditional(CompoundNBT p_70037_1_) {
+    super.readAdditional(p_70037_1_);
+    stack = ItemStack.read(p_70037_1_.getCompound("mobcatcher"));
   }
 
   @Nonnull
