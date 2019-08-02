@@ -1,6 +1,8 @@
 package com.tfar.mobcatcher;
 
 import net.minecraft.block.DispenserBlock;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.SpriteRenderer;
 import net.minecraft.dispenser.IPosition;
 import net.minecraft.dispenser.ProjectileDispenseBehavior;
 import net.minecraft.entity.EntityClassification;
@@ -26,8 +28,6 @@ import javax.annotation.Nonnull;
 @Mod(value = MobCatcher.MODID)
 public class MobCatcher {
   public static final String MODID = "mobcatcher";
-
-  private static Logger logger;
 
   @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
   @SuppressWarnings("unused")
@@ -82,7 +82,7 @@ public class MobCatcher {
   public static class ClientEvents {
     @SubscribeEvent
     public static void registerModels(FMLClientSetupEvent event) {
-      RenderingRegistry.registerEntityRenderingHandler(NetEntity.class, NetRenderer::new);
+      RenderingRegistry.registerEntityRenderingHandler(NetEntity.class, render -> new SpriteRenderer<>(render, Minecraft.getInstance().getItemRenderer()));
     }
   }
 

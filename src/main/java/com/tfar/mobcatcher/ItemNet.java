@@ -64,7 +64,7 @@ public class ItemNet extends Item {
     CompoundNBT nbt = new CompoundNBT();
     nbt.putString("entity", entityID);
     nbt.putString("id", EntityType.getKey(target.getType()).toString());
-    target.writeAdditional(nbt);
+    target.writeUnlessPassenger(nbt);
     ItemStack newerStack = newStack.split(1);
     newerStack.setTag(nbt);
     player.swingArm(hand);

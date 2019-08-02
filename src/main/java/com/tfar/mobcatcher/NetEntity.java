@@ -90,13 +90,7 @@ public class NetEntity extends ProjectileItemEntity {
       CompoundNBT nbt = new CompoundNBT();
       nbt.putString("entity", entityID);
       nbt.putString("id", EntityType.getKey(target.getType()).toString());
-      //would use target.writeAdditional(nbt); but of course it's protected because mahjong
-      Method m = ObfuscationReflectionHelper.findMethod(Entity.class, "func_213281_b", CompoundNBT.class);
-      try {
-        m.invoke(target, nbt);
-      } catch (IllegalAccessException | InvocationTargetException e) {
-        e.printStackTrace();
-      }
+      target.writeUnlessPassenger(nbt);
       ItemStack newStack = stack.copy();
       newStack.setTag(nbt);
       ItemEntity itemEntity = new ItemEntity(target.world, target.posX, target.posY, target.posZ, newStack);
