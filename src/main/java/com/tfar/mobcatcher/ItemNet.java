@@ -5,6 +5,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -58,7 +59,7 @@ public class ItemNet extends Item {
   public boolean itemInteractionForEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
     if (target.getEntityWorld().isRemote || target instanceof PlayerEntity || !target.isAlive() || containsEntity(stack))
       return false;
-    String entityID = EntityType.getKey(target.getType()).toString();
+    String entityID = target.getType().getRegistryName().toString();
     if (isBlacklisted(entityID)) return false;
     ItemStack newStack = stack.copy();
     CompoundNBT nbt = new CompoundNBT();
@@ -69,7 +70,10 @@ public class ItemNet extends Item {
     newerStack.setTag(nbt);
     player.swingArm(hand);
     player.setHeldItem(hand, newStack);
-    player.addItemStackToInventory(newerStack);
+    if(!player.addItemStackToInventory(newerStack)){
+      ItemEntity itemEntity = new ItemEntity(player.world,player.posX,player.posY,player.posZ,newerStack);
+      player.world.addEntity(itemEntity);
+    }
     target.remove();
     player.getCooldownTracker().setCooldown(this, 5);
     return true;
