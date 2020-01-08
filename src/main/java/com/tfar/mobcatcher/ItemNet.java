@@ -33,11 +33,6 @@ public class ItemNet extends Item {
   }
 
   @Override
-  public int getItemStackLimit(ItemStack stack) {
-    return (containsEntity(stack)) ? 1 : 64;
-  }
-
-  @Override
   @Nonnull
   public ActionResultType onItemUse(ItemUseContext context) {
     PlayerEntity player = context.getPlayer();
@@ -51,7 +46,7 @@ public class ItemNet extends Item {
     stack.setTag(null);
     player.setHeldItem(hand, stack);
     player.world.addEntity(entity);
-  //  if (entity instanceof LivingEntity) ((LivingEntity) entity).playSound();
+    //if (entity instanceof LivingEntity) ((LivingEntity) entity).playSound();
     return ActionResultType.SUCCESS;
   }
 
@@ -71,7 +66,7 @@ public class ItemNet extends Item {
     player.swingArm(hand);
     player.setHeldItem(hand, newStack);
     if(!player.addItemStackToInventory(newerStack)){
-      ItemEntity itemEntity = new ItemEntity(player.world,player.posX,player.posY,player.posZ,newerStack);
+      ItemEntity itemEntity = new ItemEntity(player.world,player.func_226277_ct_(),player.func_226278_cu_(),player.func_226281_cx_(),newerStack);
       player.world.addEntity(itemEntity);
     }
     target.remove();
@@ -109,7 +104,7 @@ public class ItemNet extends Item {
   {
     ItemStack newStack = stack.copy();
     newStack.setCount(1);
-    return new NetEntity(shooter.posX, shooter.posY + 1.25, shooter.posZ, worldIn, newStack);
+    return new NetEntity(shooter.func_226277_ct_(), shooter.func_226278_cu_() + 1.25, shooter.func_226281_cx_(), worldIn, newStack);
   }
 
   //helper methods

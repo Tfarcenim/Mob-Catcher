@@ -55,9 +55,8 @@ public class MobCatcher {
                       .setUpdateInterval(1)
                       .setTrackingRange(128)
                       .size(.6f, .6f)
-                      .setCustomClientFactory((spawnEntity, world) -> ObjectHolders.net_type.create(world))
-                      .build("mobcatcher:net_type")
-                      .setRegistryName("mobcatcher:net_type"));
+                      .build("net")
+                      .setRegistryName("net"));
     }
     @SubscribeEvent
     public static void init(FMLCommonSetupEvent event) {
@@ -81,13 +80,16 @@ public class MobCatcher {
   public static class ClientEvents {
     @SubscribeEvent
     public static void registerModels(FMLClientSetupEvent event) {
-      RenderingRegistry.registerEntityRenderingHandler(NetEntity.class, render -> new SpriteRenderer<>(render, Minecraft.getInstance().getItemRenderer()));
+      RenderingRegistry.registerEntityRenderingHandler(ObjectHolders.Entities.net, render -> new SpriteRenderer<>(render, Minecraft.getInstance().getItemRenderer()));
     }
   }
 
   @ObjectHolder(value = MODID)
   public static class ObjectHolders {
     public static final Item net = null;
-    public static final EntityType<NetEntity> net_type = null;
+    @ObjectHolder(MODID)
+    public static class Entities {
+      public static final EntityType<NetEntity> net = null;
+    }
   }
 }

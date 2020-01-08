@@ -29,13 +29,13 @@ public class NetEntity extends ProjectileItemEntity {
   }
 
   public NetEntity(double x, double y, double z, World world, ItemStack newStack) {
-    super(MobCatcher.ObjectHolders.net_type, x, y, z, world);
+    super(MobCatcher.ObjectHolders.Entities.net, x, y, z, world);
     this.stack = newStack;
   }
 
   @Nonnull
   @Override
-  protected Item func_213885_i() {
+  protected Item getDefaultItem() {
     return MobCatcher.ObjectHolders.net;
   }
 
@@ -65,7 +65,7 @@ public class NetEntity extends ProjectileItemEntity {
       entity.setPositionAndRotation(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0);
       stack.setTag(null);
       world.addEntity(entity);
-      ItemEntity emptynet = new ItemEntity(this.world, this.posX, this.posY, this.posZ, new ItemStack(stack.getItem()));
+      ItemEntity emptynet = new ItemEntity(this.world, this.func_226277_ct_(), this.func_226278_cu_(), this.func_226281_cx_(), new ItemStack(stack.getItem()));
       world.addEntity(emptynet);
     } else if (!containsEntity(stack)) {
       if (type == RayTraceResult.Type.ENTITY) {
@@ -82,11 +82,11 @@ public class NetEntity extends ProjectileItemEntity {
         target.writeUnlessPassenger(nbt);
         ItemStack newStack = stack.copy();
         newStack.setTag(nbt);
-        ItemEntity itemEntity = new ItemEntity(target.world, target.posX, target.posY, target.posZ, newStack);
+        ItemEntity itemEntity = new ItemEntity(target.world, target.func_226277_ct_(), target.func_226278_cu_(), target.func_226281_cx_(), newStack);
         world.addEntity(itemEntity);
         target.remove();
       } else {
-        ItemEntity emptynet = new ItemEntity(this.world, this.posX, this.posY, this.posZ, new ItemStack(stack.getItem()));
+        ItemEntity emptynet = new ItemEntity(this.world, this.func_226277_ct_(), this.func_226278_cu_(), this.func_226281_cx_(), new ItemStack(stack.getItem()));
         world.addEntity(emptynet);
       }
     }

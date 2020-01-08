@@ -84,7 +84,7 @@ public class ItemNetLauncher extends Item {
             worldIn.addEntity(netEntity);
           }
 
-          worldIn.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+          worldIn.playSound(null, player.func_226277_ct_(), player.func_226278_cu_(), player.func_226281_cx_(), SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F);
 
           if (!player.abilities.isCreativeMode) {
             stackAmmo.shrink(1);
@@ -119,7 +119,7 @@ public class ItemNetLauncher extends Item {
   @Nonnull
   public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity player, @Nonnull Hand hand) {
     ItemStack stack = player.getHeldItem(hand);
-    if (player.isSneaking()){
+    if (player.isCrouching()){
       CompoundNBT nbt = stack.getOrCreateTag();
       boolean capture = isCaptureMode(stack);
       nbt.putBoolean("capture",!capture);
@@ -148,7 +148,7 @@ public class ItemNetLauncher extends Item {
     return stack.getOrCreateTag().getBoolean("capture");
   }
   public static boolean isEmptyNet(ItemStack stack) {
-    return stack.getItem() instanceof ItemNet && !stack.hasTag();
+    return stack.getItem() instanceof ItemNet && !ItemNet.containsEntity(stack);
   }
   public static boolean isFilledNet(ItemStack stack){
     return stack.getItem() instanceof ItemNet && ItemNet.containsEntity(stack);
