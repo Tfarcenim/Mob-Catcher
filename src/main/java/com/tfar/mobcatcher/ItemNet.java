@@ -54,11 +54,11 @@ public class ItemNet extends Item {
   public boolean itemInteractionForEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
     if (target.getEntityWorld().isRemote || target instanceof PlayerEntity || !target.isAlive() || containsEntity(stack))
       return false;
-    String entityID = target.getType().getRegistryName().toString();
+    EntityType<?> entityID = target.getType();
     if (isBlacklisted(entityID)) return false;
     ItemStack newStack = stack.copy();
     CompoundNBT nbt = new CompoundNBT();
-    nbt.putString("entity", entityID);
+    nbt.putString("entity", entityID.getRegistryName().toString());
     nbt.putString("id", EntityType.getKey(target.getType()).toString());
     target.writeUnlessPassenger(nbt);
     ItemStack newerStack = newStack.split(1);
@@ -117,8 +117,8 @@ public class ItemNet extends Item {
     return stack.getOrCreateTag().getString("entity");
   }
 
-  public static boolean isBlacklisted(String entity) {
-    return false;
+  public boolean isBlacklisted(EntityType<?> entity) {
+    return MobCatcher.blacklisted.func_199685_a_(entity);
   }
 
   public static Entity getEntityFromStack(ItemStack stack, World world, boolean withInfo) {

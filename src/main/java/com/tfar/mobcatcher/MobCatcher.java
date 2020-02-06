@@ -11,6 +11,9 @@ import net.minecraft.entity.IProjectile;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.RegistryEvent;
@@ -28,9 +31,13 @@ import javax.annotation.Nonnull;
 public class MobCatcher {
   public static final String MODID = "mobcatcher";
 
+  public static final Tag<EntityType<?>> blacklisted =
+          new EntityTypeTags.Wrapper(new ResourceLocation(MobCatcher.MODID,"blacklisted"));
+
   @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
   @SuppressWarnings("unused")
   public static class RegistryEvents {
+
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> e) {

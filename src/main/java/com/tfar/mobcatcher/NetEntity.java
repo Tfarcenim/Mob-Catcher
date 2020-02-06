@@ -49,11 +49,6 @@ public class NetEntity extends ProjectileItemEntity {
     if (world.isRemote || !this.isAlive()) return;
     RayTraceResult.Type type = result.getType();
 
-    if (stack == null) {
-      this.remove();
-      return;
-    }
-
     if (containsEntity(stack)) {
 
       Entity entity = ItemNet.getEntityFromStack(stack, world, true);
@@ -74,7 +69,8 @@ public class NetEntity extends ProjectileItemEntity {
         if (target instanceof PlayerEntity || !target.isAlive()) return;
         if (containsEntity(stack)) return;
         String entityID = EntityType.getKey(target.getType()).toString();
-        if (ItemNet.isBlacklisted(entityID)) return;
+        Item item = stack.getItem();
+        if (item instanceof ItemNet && ((ItemNet) item).isBlacklisted(target.getType())) return;
 
         CompoundNBT nbt = new CompoundNBT();
         nbt.putString("entity", entityID);
