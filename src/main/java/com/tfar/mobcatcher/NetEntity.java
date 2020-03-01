@@ -58,7 +58,7 @@ public class NetEntity extends ProjectileItemEntity {
       else
         pos = ((BlockRayTraceResult) result).getPos();
       entity.setPositionAndRotation(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0);
-      stack.setTag(null);
+      stack.removeChildTag(ItemNet.KEY);
       world.addEntity(entity);
       ItemEntity emptynet = new ItemEntity(this.world, this.func_226277_ct_(), this.func_226278_cu_(), this.func_226281_cx_(), new ItemStack(stack.getItem()));
       world.addEntity(emptynet);
@@ -68,16 +68,12 @@ public class NetEntity extends ProjectileItemEntity {
         Entity target = entityRayTrace.getEntity();
         if (target instanceof PlayerEntity || !target.isAlive()) return;
         if (containsEntity(stack)) return;
-        String entityID = EntityType.getKey(target.getType()).toString();
         Item item = stack.getItem();
         if (item instanceof ItemNet && ((ItemNet) item).isBlacklisted(target.getType())) return;
 
-        CompoundNBT nbt = new CompoundNBT();
-        nbt.putString("entity", entityID);
-        nbt.putString("id", EntityType.getKey(target.getType()).toString());
-        target.writeUnlessPassenger(nbt);
+        CompoundNBT nbt = ItemNet.getNBTfromEntity(target);
         ItemStack newStack = stack.copy();
-        newStack.setTag(nbt);
+        newStack.getOrCreateTag().put(ItemNet.KEY,nbt);
         ItemEntity itemEntity = new ItemEntity(target.world, target.func_226277_ct_(), target.func_226278_cu_(), target.func_226281_cx_(), newStack);
         world.addEntity(itemEntity);
         target.remove();

@@ -13,19 +13,21 @@ import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
 public class ItemNet extends Item {
+
+  public static final String KEY = "entity_holder";
 
 
   public ItemNet(Properties properties) {
@@ -57,12 +59,9 @@ public class ItemNet extends Item {
     EntityType<?> entityID = target.getType();
     if (isBlacklisted(entityID)) return false;
     ItemStack newStack = stack.copy();
-    CompoundNBT nbt = new CompoundNBT();
-    nbt.putString("entity", entityID.getRegistryName().toString());
-    nbt.putString("id", EntityType.getKey(target.getType()).toString());
-    target.writeUnlessPassenger(nbt);
+    CompoundNBT nbt = getNBTfromEntity(target);
     ItemStack newerStack = newStack.split(1);
-    newerStack.setTag(nbt);
+    newerStack.getOrCreateTag().put(KEY,nbt);
     player.swingArm(hand);
     player.setHeldItem(hand, newStack);
     if(!player.addItemStackToInventory(newerStack)){
@@ -110,22 +109,36 @@ public class ItemNet extends Item {
   //helper methods
 
   public static boolean containsEntity(@Nonnull ItemStack stack) {
-    return stack.hasTag() && stack.getTag().contains("entity");
+    return stack.hasTag() && stack.getTag().contains(KEY);
   }
 
   public static String getID(ItemStack stack) {
-    return stack.getOrCreateTag().getString("entity");
+    return getID(stack.getOrCreateTag());
+  }
+
+  public static String getID(CompoundNBT nbt) {
+    return nbt.getString("entity");
   }
 
   public boolean isBlacklisted(EntityType<?> entity) {
     return MobCatcher.blacklisted.func_199685_a_(entity);
   }
 
-  public static Entity getEntityFromStack(ItemStack stack, World world, boolean withInfo) {
-    Entity entity = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(stack.getTag().getString("entity"))).create(world);
-    if (withInfo) entity.read(stack.getTag());
+  public static Entity getEntityFromNBT(CompoundNBT nbt, World world, boolean withInfo) {
+    Entity entity = Registry.ENTITY_TYPE.getOrDefault(new ResourceLocation(nbt.getString("entity"))).create(world);
+    if (withInfo) entity.read(nbt);
     return entity;
   }
 
+  public static Entity getEntityFromStack(ItemStack stack, World world, boolean withInfo) {
+    return getEntityFromNBT(stack.getOrCreateTag().getCompound(KEY),world,withInfo);
+  }
 
+  public static CompoundNBT getNBTfromEntity(Entity entity){
+    CompoundNBT nbt = new CompoundNBT();
+    nbt.putString("entity", entity.getType().getRegistryName().toString());
+    nbt.putString("id", EntityType.getKey(entity.getType()).toString());
+    entity.writeUnlessPassenger(nbt);
+    return nbt;
+  }
 }
