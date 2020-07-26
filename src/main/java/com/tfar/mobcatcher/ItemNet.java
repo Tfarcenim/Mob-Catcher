@@ -53,11 +53,11 @@ public class ItemNet extends Item {
   }
 
   @Override
-  public boolean itemInteractionForEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
+  public ActionResultType itemInteractionForEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
     if (target.getEntityWorld().isRemote || target instanceof PlayerEntity || !target.isAlive() || containsEntity(stack))
-      return false;
+      return ActionResultType.FAIL;
     EntityType<?> entityID = target.getType();
-    if (isBlacklisted(entityID)) return false;
+    if (isBlacklisted(entityID)) return ActionResultType.FAIL;
     ItemStack newStack = stack.copy();
     CompoundNBT nbt = getNBTfromEntity(target);
     ItemStack newerStack = newStack.split(1);
@@ -65,12 +65,12 @@ public class ItemNet extends Item {
     player.swingArm(hand);
     player.setHeldItem(hand, newStack);
     if(!player.addItemStackToInventory(newerStack)){
-      ItemEntity itemEntity = new ItemEntity(player.world,player.func_226277_ct_(),player.func_226278_cu_(),player.func_226281_cx_(),newerStack);
+      ItemEntity itemEntity = new ItemEntity(player.world,player.getPosX(),player.getPosY(),player.getPosZ(),newerStack);
       player.world.addEntity(itemEntity);
     }
     target.remove();
     player.getCooldownTracker().setCooldown(this, 5);
-    return true;
+    return ActionResultType.SUCCESS;
   }
 
 
@@ -85,7 +85,7 @@ public class ItemNet extends Item {
         String s0 = "entity." + getID(stack);
         String s1 = s0.replace(':','.');
         tooltip.add(new StringTextComponent(I18n.format(s1)));
-        tooltip.add(new StringTextComponent("Health: " + stack.getTag().getDouble("Health")));
+        tooltip.add(new StringTextComponent("Health: " + stack.getTag().getCompound(KEY).getDouble("Health")));
       }
   }
 
@@ -103,7 +103,7 @@ public class ItemNet extends Item {
   {
     ItemStack newStack = stack.copy();
     newStack.setCount(1);
-    return new NetEntity(shooter.func_226277_ct_(), shooter.func_226278_cu_() + 1.25, shooter.func_226281_cx_(), worldIn, newStack);
+    return new NetEntity(shooter.getPosX(), shooter.getPosY() + 1.25, shooter.getPosZ(), worldIn, newStack);
   }
 
   //helper methods
@@ -113,7 +113,7 @@ public class ItemNet extends Item {
   }
 
   public static String getID(ItemStack stack) {
-    return getID(stack.getOrCreateTag());
+    return getID(stack.getTag().getCompound(KEY));
   }
 
   public static String getID(CompoundNBT nbt) {
@@ -121,7 +121,7 @@ public class ItemNet extends Item {
   }
 
   public boolean isBlacklisted(EntityType<?> entity) {
-    return MobCatcher.blacklisted.func_199685_a_(entity);
+    return MobCatcher.blacklisted.contains(entity);
   }
 
   public static Entity getEntityFromNBT(CompoundNBT nbt, World world, boolean withInfo) {

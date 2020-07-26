@@ -7,12 +7,12 @@ import net.minecraft.dispenser.IPosition;
 import net.minecraft.dispenser.ProjectileDispenseBehavior;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IProjectile;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tags.EntityTypeTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -31,8 +31,7 @@ import javax.annotation.Nonnull;
 public class MobCatcher {
   public static final String MODID = "mobcatcher";
 
-  public static final Tag<EntityType<?>> blacklisted =
-          new EntityTypeTags.Wrapper(new ResourceLocation(MobCatcher.MODID,"blacklisted"));
+  public static final ITag<EntityType<?>> blacklisted = EntityTypeTags.func_232896_a_(new ResourceLocation(MobCatcher.MODID,"blacklisted").toString());
 
   @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
   @SuppressWarnings("unused")
@@ -73,7 +72,7 @@ public class MobCatcher {
          */
         @Nonnull
         @Override
-        protected IProjectile getProjectileEntity(@Nonnull World world, @Nonnull IPosition pos, @Nonnull ItemStack stack) {
+        protected ProjectileEntity getProjectileEntity(@Nonnull World world, @Nonnull IPosition pos, @Nonnull ItemStack stack) {
           ItemStack newStack = stack.copy();
           newStack.setCount(1);
           return new NetEntity(pos.getX(), pos.getY(), pos.getZ(), world, newStack);

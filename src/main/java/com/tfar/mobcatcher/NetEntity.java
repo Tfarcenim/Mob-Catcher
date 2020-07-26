@@ -60,7 +60,7 @@ public class NetEntity extends ProjectileItemEntity {
       entity.setPositionAndRotation(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0);
       stack.removeChildTag(ItemNet.KEY);
       world.addEntity(entity);
-      ItemEntity emptynet = new ItemEntity(this.world, this.func_226277_ct_(), this.func_226278_cu_(), this.func_226281_cx_(), new ItemStack(stack.getItem()));
+      ItemEntity emptynet = new ItemEntity(this.world, this.getPosX(), this.getPosY(), this.getPosZ(), new ItemStack(stack.getItem()));
       world.addEntity(emptynet);
     } else if (!containsEntity(stack)) {
       if (type == RayTraceResult.Type.ENTITY) {
@@ -74,11 +74,11 @@ public class NetEntity extends ProjectileItemEntity {
         CompoundNBT nbt = ItemNet.getNBTfromEntity(target);
         ItemStack newStack = stack.copy();
         newStack.getOrCreateTag().put(ItemNet.KEY,nbt);
-        ItemEntity itemEntity = new ItemEntity(target.world, target.func_226277_ct_(), target.func_226278_cu_(), target.func_226281_cx_(), newStack);
+        ItemEntity itemEntity = new ItemEntity(target.world, target.getPosX(), target.getPosY(), target.getPosZ(), newStack);
         world.addEntity(itemEntity);
         target.remove();
       } else {
-        ItemEntity emptynet = new ItemEntity(this.world, this.func_226277_ct_(), this.func_226278_cu_(), this.func_226281_cx_(), new ItemStack(stack.getItem()));
+        ItemEntity emptynet = new ItemEntity(this.world, this.getPosX(), this.getPosY(), this.getPosZ(), new ItemStack(stack.getItem()));
         world.addEntity(emptynet);
       }
     }

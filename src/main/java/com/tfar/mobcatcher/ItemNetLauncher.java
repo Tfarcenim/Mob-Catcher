@@ -79,12 +79,12 @@ public class ItemNetLauncher extends Item {
           if (!worldIn.isRemote) {
             ItemNet itemNet = stackAmmo.getItem() instanceof ItemNet ? (ItemNet)stackAmmo.getItem() : (ItemNet)MobCatcher.ObjectHolders.net;
             NetEntity netEntity = itemNet.createNet(worldIn, player, stackAmmo);
-            netEntity.shoot(player, player.rotationPitch, player.rotationYaw, 0, f * 3, 1);
+            netEntity.func_234612_a_(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 3.0F, 0);
 
             worldIn.addEntity(netEntity);
           }
 
-          worldIn.playSound(null, player.func_226277_ct_(), player.func_226278_cu_(), player.func_226281_cx_(), SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+          worldIn.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F);
 
           if (!player.abilities.isCreativeMode) {
             stackAmmo.shrink(1);
