@@ -70,14 +70,14 @@ public class ItemNetLauncher extends Item {
       if (i < 0) return;
 
       if (!stackAmmo.isEmpty() || player.abilities.isCreativeMode) {
-        if (stackAmmo.isEmpty()) stackAmmo = new ItemStack(MobCatcher.ObjectHolders.net);
+        if (stackAmmo.isEmpty()) stackAmmo = new ItemStack(MobCatcher.net_item);
 
         float f = getNetVelocity(i);
 
         if (f >= 0.1) {
 
           if (!worldIn.isRemote) {
-            ItemNet itemNet = stackAmmo.getItem() instanceof ItemNet ? (ItemNet)stackAmmo.getItem() : (ItemNet)MobCatcher.ObjectHolders.net;
+            ItemNet itemNet = stackAmmo.getItem() instanceof ItemNet ? (ItemNet)stackAmmo.getItem() : (ItemNet)MobCatcher.net_item;
             NetEntity netEntity = itemNet.createNet(worldIn, player, stackAmmo);
             netEntity.func_234612_a_(player, player.rotationPitch, player.rotationYaw, 0.0F, f * 3.0F, 0);
 

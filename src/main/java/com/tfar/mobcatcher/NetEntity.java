@@ -29,14 +29,14 @@ public class NetEntity extends ProjectileItemEntity {
   }
 
   public NetEntity(double x, double y, double z, World world, ItemStack newStack) {
-    super(MobCatcher.ObjectHolders.Entities.net, x, y, z, world);
+    super(MobCatcher.net, x, y, z, world);
     this.stack = newStack;
   }
 
   @Nonnull
   @Override
   protected Item getDefaultItem() {
-    return MobCatcher.ObjectHolders.net;
+    return MobCatcher.net_item;
   }
 
   /**

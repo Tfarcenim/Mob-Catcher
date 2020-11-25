@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
 public class MobCatcher {
   public static final String MODID = "mobcatcher";
 
-  public static final ITag<EntityType<?>> blacklisted = EntityTypeTags.func_232896_a_(new ResourceLocation(MobCatcher.MODID,"blacklisted").toString());
+  public static final ITag<EntityType<?>> blacklisted = EntityTypeTags.getTagById(new ResourceLocation(MobCatcher.MODID,"blacklisted").toString());
 
   @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
   @SuppressWarnings("unused")
@@ -43,7 +43,7 @@ public class MobCatcher {
       IForgeRegistry<Item> registry = e.getRegistry();
       Item.Properties properties = new Item.Properties().group(ItemGroup.COMBAT);
 
-      registerItem(new ItemNet(properties), "net", registry);
+      registerItem(net_item, "net", registry);
       registerItem(new ItemNetLauncher(properties), "net_launcher", registry);
     }
 
@@ -53,20 +53,11 @@ public class MobCatcher {
 
     @SubscribeEvent
     public static void registerEntity(RegistryEvent.Register<EntityType<?>> e) {
-
-      e.getRegistry().register(
-              EntityType.Builder
-                      .<NetEntity>create(NetEntity::new, EntityClassification.MISC)
-                      .setShouldReceiveVelocityUpdates(true)
-                      .setUpdateInterval(1)
-                      .setTrackingRange(128)
-                      .size(.6f, .6f)
-                      .build("net")
-                      .setRegistryName("net"));
+      e.getRegistry().register(net.setRegistryName("net"));
     }
     @SubscribeEvent
     public static void init(FMLCommonSetupEvent event) {
-      DispenserBlock.registerDispenseBehavior(ObjectHolders.net, new ProjectileDispenseBehavior() {
+      DispenserBlock.registerDispenseBehavior(net_item, new ProjectileDispenseBehavior() {
         /**
          * Return the projectile entity spawned by this dispense behavior.
          */
@@ -81,21 +72,22 @@ public class MobCatcher {
     }
   }
 
+  public static EntityType<NetEntity> net = EntityType.Builder
+          .<NetEntity>create(NetEntity::new, EntityClassification.MISC)
+          .setShouldReceiveVelocityUpdates(true)
+          .setUpdateInterval(1)
+          .setTrackingRange(128)
+          .size(.6f, .6f)
+          .build("net");
+  public static Item net_item = new ItemNet(new Item.Properties().group(ItemGroup.COMBAT));
+
+
   @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
   @SuppressWarnings("unused")
   public static class ClientEvents {
     @SubscribeEvent
     public static void registerModels(FMLClientSetupEvent event) {
-      RenderingRegistry.registerEntityRenderingHandler(ObjectHolders.Entities.net, render -> new SpriteRenderer<>(render, Minecraft.getInstance().getItemRenderer()));
-    }
-  }
-
-  @ObjectHolder(value = MODID)
-  public static class ObjectHolders {
-    public static final Item net = null;
-    @ObjectHolder(MODID)
-    public static class Entities {
-      public static final EntityType<NetEntity> net = null;
+      RenderingRegistry.registerEntityRenderingHandler(net, render -> new SpriteRenderer<>(render, Minecraft.getInstance().getItemRenderer()));
     }
   }
 }
