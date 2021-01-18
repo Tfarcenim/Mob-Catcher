@@ -38,17 +38,18 @@ public class ItemNet extends Item {
   @Nonnull
   public ActionResultType onItemUse(ItemUseContext context) {
     PlayerEntity player = context.getPlayer();
+    World world = context.getWorld();
     if (player == null)return ActionResultType.FAIL;
-    Hand hand = Hand.MAIN_HAND;
-    ItemStack stack = player.getHeldItemMainhand();
-    if (player.getEntityWorld().isRemote || !containsEntity(stack)) return ActionResultType.FAIL;
-    Entity entity = getEntityFromStack(stack, player.world, true);
+    ItemStack stack = context.getItem();
+    if (world.isRemote || !containsEntity(stack)) return ActionResultType.FAIL;
+    Entity entity = getEntityFromStack(stack, world, true);
     BlockPos blockPos = context.getPos();
     entity.setPositionAndRotation(blockPos.getX() + 0.5, blockPos.getY() + 1, blockPos.getZ() + 0.5, 0, 0);
     stack.setTag(null);
-    player.setHeldItem(hand, stack);
-    player.world.addEntity(entity);
-    //if (entity instanceof LivingEntity) ((LivingEntity) entity).playSound();
+    world.addEntity(entity);
+    if (this.isDamageable()) {
+      stack.damageItem(1,player,playerEntity -> playerEntity.sendBreakAnimation(context.getHand()));
+    }
     return ActionResultType.SUCCESS;
   }
 

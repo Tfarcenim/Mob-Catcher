@@ -2,6 +2,7 @@ package com.tfar.mobcatcher;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileItemEntity;
@@ -48,9 +49,8 @@ public class NetEntity extends ProjectileItemEntity {
   protected void onImpact(@Nonnull RayTraceResult result) {
     if (world.isRemote || !this.isAlive()) return;
     RayTraceResult.Type type = result.getType();
-
-    if (containsEntity(stack)) {
-
+    boolean containsEntity = containsEntity(stack);
+    if (containsEntity) {
       Entity entity = ItemNet.getEntityFromStack(stack, world, true);
       BlockPos pos;
       if (type == RayTraceResult.Type.ENTITY)
@@ -62,12 +62,18 @@ public class NetEntity extends ProjectileItemEntity {
       world.addEntity(entity);
       ItemEntity emptynet = new ItemEntity(this.world, this.getPosX(), this.getPosY(), this.getPosZ(), new ItemStack(stack.getItem()));
       world.addEntity(emptynet);
-    } else if (!containsEntity(stack)) {
+      if (stack.isDamageable()) {
+        Entity owner = this.func_234616_v_();
+        if (owner instanceof LivingEntity) {
+          stack.damageItem(1, (LivingEntity)owner, playerEntity -> {
+          });
+        }
+      }
+    } else {
       if (type == RayTraceResult.Type.ENTITY) {
         EntityRayTraceResult entityRayTrace = (EntityRayTraceResult) result;
         Entity target = entityRayTrace.getEntity();
         if (target instanceof PlayerEntity || !target.isAlive()) return;
-        if (containsEntity(stack)) return;
         Item item = stack.getItem();
         if (item instanceof ItemNet && ((ItemNet) item).isBlacklisted(target.getType())) return;
 

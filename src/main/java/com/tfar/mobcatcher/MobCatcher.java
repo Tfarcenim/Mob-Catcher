@@ -16,14 +16,19 @@ import net.minecraft.tags.ITag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.ObjectHolder;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 
@@ -33,13 +38,37 @@ public class MobCatcher {
 
   public static final ITag<EntityType<?>> blacklisted = EntityTypeTags.getTagById(new ResourceLocation(MobCatcher.MODID,"blacklisted").toString());
 
-  @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-  @SuppressWarnings("unused")
-  public static class RegistryEvents {
+  public MobCatcher() {
+    ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER_SPEC);
+    IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+    bus.addGenericListener(Item.class,this::registerItems);
+    bus.addGenericListener(EntityType.class,this::registerEntity);
+    bus.addListener(this::init);
+    bus.addListener(this::configChange);
 
+    //MinecraftForge.EVENT_BUS.addListener(this::playerRespawn);
+  }
 
-    @SubscribeEvent
-    public static void registerItems(RegistryEvent.Register<Item> e) {
+  private void configChange(ModConfig.ModConfigEvent e) {
+    if (e.getConfig().getModId().equals(MODID)) {
+      int durability = ServerConfig.net_durability.get();
+      if (durability > -1) {
+        net_item.maxStackSize = 1;
+        net_item.maxDamage = durability;
+      }
+    }
+  }
+
+  public static final ServerConfig SERVER;
+  public static final ForgeConfigSpec SERVER_SPEC;
+
+  static {
+    final Pair<ServerConfig, ForgeConfigSpec> specPair2 = new ForgeConfigSpec.Builder().configure(ServerConfig::new);
+    SERVER_SPEC = specPair2.getRight();
+    SERVER = specPair2.getLeft();
+  }
+
+    public void registerItems(RegistryEvent.Register<Item> e) {
       IForgeRegistry<Item> registry = e.getRegistry();
       Item.Properties properties = new Item.Properties().group(ItemGroup.COMBAT);
 
@@ -51,12 +80,11 @@ public class MobCatcher {
       registry.register(item.setRegistryName(name));
     }
 
-    @SubscribeEvent
-    public static void registerEntity(RegistryEvent.Register<EntityType<?>> e) {
+    public void registerEntity(RegistryEvent.Register<EntityType<?>> e) {
       e.getRegistry().register(net.setRegistryName("net"));
     }
-    @SubscribeEvent
-    public static void init(FMLCommonSetupEvent event) {
+
+    public void init(FMLCommonSetupEvent event) {
       DispenserBlock.registerDispenseBehavior(net_item, new ProjectileDispenseBehavior() {
         /**
          * Return the projectile entity spawned by this dispense behavior.
@@ -70,7 +98,6 @@ public class MobCatcher {
         }
       });
     }
-  }
 
   public static EntityType<NetEntity> net = EntityType.Builder
           .<NetEntity>create(NetEntity::new, EntityClassification.MISC)
@@ -81,6 +108,18 @@ public class MobCatcher {
           .build("net");
   public static Item net_item = new ItemNet(new Item.Properties().group(ItemGroup.COMBAT));
 
+
+  public static class ServerConfig {
+
+    public static ForgeConfigSpec.IntValue net_durability;
+
+    public ServerConfig(ForgeConfigSpec.Builder builder) {
+      builder.push("general");
+      net_durability = builder.comment("Number of uses before mob catcher breaks, damaged every time a mob is released, -1 disables durability, numbers above will set stack size to 1")
+              .defineInRange("net_durability", -1, -1, Integer.MAX_VALUE);
+      builder.pop();
+    }
+  }
 
   @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
   @SuppressWarnings("unused")
