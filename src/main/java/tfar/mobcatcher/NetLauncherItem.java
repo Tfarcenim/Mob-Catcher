@@ -1,6 +1,6 @@
 package tfar.mobcatcher;
 
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -129,7 +129,7 @@ public class NetLauncherItem extends Item {
       boolean capture = isCaptureMode(stack);
       nbt.putBoolean("capture",!capture);
       stack.setTag(nbt);
-      player.displayClientMessage(new TranslatableComponent(capture ? "mobcatcher.releasing" : "mobcatcher.capturing"),true);
+      player.displayClientMessage(capture ? RELEASE: CAPTURE,true);
       return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
     }
     boolean hasAmmo = !this.findNet(player).isEmpty();
@@ -142,10 +142,14 @@ public class NetLauncherItem extends Item {
     }
   }
 
+  public static final Component CAPTURE = new TranslatableComponent("mobcatcher.capturing");
+  public static final Component RELEASE = new TranslatableComponent("mobcatcher.releasing");
+
   @Override
   @Nonnull
   public Component getName(@Nonnull ItemStack stack) {
-    return new TranslatableComponent(I18n.get(super.getDescriptionId(stack)) + " ("+I18n.get(isCaptureMode(stack) ? "mobcatcher.capturing": "mobcatcher.releasing")+ ")");
+    MutableComponent base = (MutableComponent) super.getName(stack);
+    return base.append(" (").append(isCaptureMode(stack) ? CAPTURE : RELEASE).append(")");
   }
 
   //helpers
