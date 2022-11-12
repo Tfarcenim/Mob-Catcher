@@ -1,6 +1,5 @@
 package com.tfar.mobcatcher;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -11,7 +10,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
@@ -81,13 +82,13 @@ public class NetItem extends Item {
     super.addInformation(stack, worldIn, tooltip, flagIn);
 
    // tooltip.add(new StringTextComponent(stack.getOrCreateTag().toString()));
-    if (containsEntity(stack))
-      if (!getEntityID(stack).isEmpty()) {
-        String s0 = "entity." + getEntityID(stack);
-        String s1 = s0.replace(':','.');
-        tooltip.add(new StringTextComponent(I18n.format(s1)));
-        tooltip.add(new StringTextComponent("Health: " + stack.getTag().getCompound(KEY).getDouble("Health")));
-      }
+    if (containsEntity(stack)) {
+      CompoundNBT holder = getEntityData(stack);
+      String id = holder.getString("id");
+      EntityType<?> type = Registry.ENTITY_TYPE.getOrDefault(new ResourceLocation(id));
+      tooltip.add(type.getName());
+      tooltip.add(new StringTextComponent("Health: " + getEntityData(stack).getDouble("Health")));
+    }
   }
 
   @Override
@@ -104,6 +105,10 @@ public class NetItem extends Item {
               .appendString(")")
       ;
     }
+  }
+
+  public static CompoundNBT getEntityData(ItemStack stack) {
+    return containsEntity(stack) ?  stack.getTag().getCompound(KEY) : new CompoundNBT();
   }
 
   public NetEntity createNet(World worldIn, LivingEntity shooter, ItemStack stack)

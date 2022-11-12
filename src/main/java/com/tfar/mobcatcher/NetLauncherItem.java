@@ -1,6 +1,5 @@
 package com.tfar.mobcatcher;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -124,7 +123,7 @@ public class NetLauncherItem extends Item {
       boolean capture = isCaptureMode(stack);
       nbt.putBoolean("capture",!capture);
       stack.setTag(nbt);
-      player.sendStatusMessage(new TranslationTextComponent(capture ? "mobcatcher.releasing" : "mobcatcher.capturing"),true);
+      player.sendStatusMessage(capture ? RELEASE: CAPTURE,true);
       return new ActionResult<>(ActionResultType.SUCCESS, stack);
     }
     boolean hasAmmo = !this.findNet(player).isEmpty();
@@ -136,13 +135,15 @@ public class NetLauncherItem extends Item {
       return new ActionResult<>(ActionResultType.SUCCESS, stack);
     }
   }
+  public static final TranslationTextComponent CAPTURE = new TranslationTextComponent("mobcatcher.capturing");
+  public static final TranslationTextComponent RELEASE = new TranslationTextComponent("mobcatcher.releasing");
 
   @Override
   @Nonnull
   public ITextComponent getDisplayName(@Nonnull ItemStack stack) {
-    return new TranslationTextComponent(I18n.format(super.getTranslationKey(stack)) + " ("+I18n.format(isCaptureMode(stack) ? "mobcatcher.capturing": "mobcatcher.releasing")+ ")");
+    TranslationTextComponent base = (TranslationTextComponent) super.getDisplayName(stack);
+    return base.appendString(" (").append(isCaptureMode(stack) ? CAPTURE : RELEASE).appendString(")");
   }
-
   //helpers
   public static boolean isCaptureMode(ItemStack stack){
     return stack.getOrCreateTag().getBoolean("capture");
