@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": {
+      "item": "minecraft:ender_pearl"
+    },
+    "e": {
+      "item": "minecraft:bow"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    }
+  },
+  "pattern": [
+    "iii",
+    " eb",
+    "iii"
+  ],
+  "result": {
+    "count": 1,
+    "id": "mobcatcher:net_launcher"
+  }
+}

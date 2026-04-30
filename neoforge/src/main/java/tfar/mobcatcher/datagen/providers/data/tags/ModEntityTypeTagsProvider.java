@@ -2,6 +2,7 @@ package tfar.mobcatcher.datagen.providers.data.tags;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import tfar.mobcatcher.MobCatcher;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
@@ -17,6 +18,6 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider pProvider) {
-        tag(MobCatcher.blacklisted).add(EntityType.PAINTING);
+        tag(MobCatcher.blacklisted).addTags(Tags.EntityTypes.CAPTURING_NOT_SUPPORTED).add(EntityType.PAINTING);
     }
 }

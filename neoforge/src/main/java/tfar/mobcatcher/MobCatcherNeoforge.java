@@ -1,7 +1,5 @@
 package tfar.mobcatcher;
 
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,7 +15,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import tfar.mobcatcher.datagen.ModDatagen;
-import net.minecraft.core.Registry;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
 
@@ -31,6 +28,7 @@ public class MobCatcherNeoforge {
     bus.addListener(this::init);
     bus.addListener(this::configChange);
     NeoForge.EVENT_BUS.addListener(this::onEntityInteract);
+    MobCatcher.init();
   }
 
   void onEntityInteract(PlayerInteractEvent.EntityInteractSpecific event) {
@@ -64,19 +62,13 @@ public class MobCatcherNeoforge {
   }
 
     public void registerItems(RegisterEvent e) {
-      registerOb(e, Registries.ITEM,"net", ModItems.net_item);
-      registerOb(e,Registries.ITEM,"net_launcher", ModItems.net_launcher);
-      registerOb(e,Registries.ENTITY_TYPE,"net", ModItems.net);
+    ModItems.init();
+    ModDataComponents.init();
     }
 
-    private static <T> void registerOb(RegisterEvent e, ResourceKey<? extends Registry<T>>resourceKey, String name, T obj) {
-      e.register(resourceKey,MobCatcher.id(name),() ->obj);
-    }
-
-    public void init(FMLCommonSetupEvent event) {
+  public void init(FMLCommonSetupEvent event) {
       DispenserBlock.registerProjectileBehavior(ModItems.net_item);
     }
-
 
   public static class ServerConfig {
 
@@ -89,5 +81,4 @@ public class MobCatcherNeoforge {
       builder.pop();
     }
   }
-
 }

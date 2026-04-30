@@ -1,13 +1,14 @@
 package tfar.mobcatcher;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -42,16 +43,15 @@ public class NetEntity extends ThrowableItemProjectile {
             Entity entity = NetItem.getEntityFromStack(stack, level(), true);
             BlockPos pos = result.getBlockPos();
             entity.absMoveTo(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0);
-            stack.removeTagKey(NetItem.KEY);
+            stack.remove(DataComponents.ENTITY_DATA);
             level().addFreshEntity(entity);
             spawnAtLocation(stack);
-            if (stack.isDamageableItem()) {
+            /*if (stack.isDamageableItem()) {
                 Entity owner = this.getOwner();
                 if (owner instanceof LivingEntity) {
-                    stack.hurtAndBreak(1, (LivingEntity) owner, playerEntity -> {
-                    });
+                    stack.hurtAndBreak(1, (LivingEntity) owner);
                 }
-            }
+            }*/
         } else {
             spawnAtLocation(stack);
         }
@@ -64,7 +64,7 @@ public class NetEntity extends ThrowableItemProjectile {
         Entity target = result.getEntity();
         if (!NetItem.isValidCapture(target)) return;
         CompoundTag nbt = NetItem.getNBTfromEntity(target);
-        stack.getOrCreateTag().put(NetItem.KEY, nbt);
+        stack.set(DataComponents.ENTITY_DATA, CustomData.of(nbt));
         spawnAtLocation(stack);
         target.discard();
         discard();
@@ -73,12 +73,12 @@ public class NetEntity extends ThrowableItemProjectile {
     public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         if (!stack.isEmpty()) {
-            nbt.put(MobCatcher.MODID, stack.save(stack.getOrCreateTag()));
+            nbt.put(MobCatcher.MODID, stack.save(registryAccess()));
         }
     }
 
     public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        stack = ItemStack.of(nbt.getCompound(MobCatcher.MODID));
+        stack = ItemStack.parseOptional(registryAccess(),nbt.getCompound(MobCatcher.MODID));
     }
 }

@@ -1,10 +1,10 @@
 package tfar.mobcatcher;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -63,7 +63,7 @@ public class NetLauncherItem extends Item {
     if (entityLiving instanceof Player player) {
       ItemStack stackAmmo = this.findNet(player);
 
-      int i = this.getUseDuration(stackAmmo) - timeLeft;
+      int i = this.getUseDuration(stackAmmo,player) - timeLeft;
       if (i < 0) return;
 
       if (!stackAmmo.isEmpty() || player.getAbilities().instabuild) {
@@ -106,7 +106,7 @@ public class NetLauncherItem extends Item {
   }
 
   @Override
-  public int getUseDuration(ItemStack stack) {
+  public int getUseDuration(ItemStack pStack, LivingEntity pEntity) {
     return 72000;
   }
 
@@ -117,12 +117,14 @@ public class NetLauncherItem extends Item {
   public InteractionResultHolder<ItemStack> use(Level worldIn, Player player, @Nonnull InteractionHand hand) {
     ItemStack stack = player.getItemInHand(hand);
     if (player.isCrouching()){
-      CompoundTag nbt = stack.getOrCreateTag();
       boolean capture = isCaptureMode(stack);
-      nbt.putBoolean("capture",!capture);
-      stack.setTag(nbt);
+      if (capture) {
+        stack.set(ModDataComponents.RELEASE, Unit.INSTANCE);
+      } else {
+        stack.remove(ModDataComponents.RELEASE);
+      }
       player.displayClientMessage(capture? RELEASE: CAPTURE,true);
-      return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+      return InteractionResultHolder.sidedSuccess(stack, worldIn.isClientSide());
     }
     boolean hasAmmo = !this.findNet(player).isEmpty();
 
@@ -146,7 +148,7 @@ public class NetLauncherItem extends Item {
 
   //helpers
   public static boolean isCaptureMode(ItemStack stack){
-    return stack.getOrCreateTag().getBoolean("capture");
+    return !stack.has(ModDataComponents.RELEASE);
   }
   public static boolean isEmptyNet(ItemStack stack) {
     return stack.getItem() instanceof NetItem && !NetItem.containsEntity(stack);

@@ -1,7 +1,7 @@
 package tfar.mobcatcher.platform;
 
-import tfar.clawmachine.Constants;
-import tfar.clawmachine.platform.services.IPlatformHelper;
+import tfar.mobcatcher.MobCatcher;
+import tfar.mobcatcher.platform.services.IPlatformHelper;
 
 import java.util.ServiceLoader;
 
@@ -24,7 +24,7 @@ public class Services {
         final T loadedService = ServiceLoader.load(clazz)
                 .findFirst()
                 .orElseThrow(() -> new NullPointerException("Failed to load service for " + clazz.getName()));
-        Constants.LOG.debug("Loaded {} for service {}", loadedService, clazz);
+        MobCatcher.LOG.debug("Loaded {} for service {}", loadedService, clazz);
         return loadedService;
     }
 }

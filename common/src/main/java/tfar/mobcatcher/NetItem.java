@@ -1,10 +1,13 @@
 package tfar.mobcatcher;
 
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Position;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -14,10 +17,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUtils;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +29,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 
-public class NetItem extends Item {
+public class NetItem extends Item implements ProjectileItem {
 
   public static final String KEY = "entity_holder";
   private static final Logger LOGGER = LogUtils.getLogger();
@@ -48,11 +50,9 @@ public class NetItem extends Item {
     Entity entity = getEntityFromStack(stack, world, true);
     BlockPos blockPos = context.getClickedPos();
     entity.absMoveTo(blockPos.getX() + 0.5, blockPos.getY() + 1, blockPos.getZ() + 0.5, 0, 0);
-    stack.setTag(null);
+    stack.remove(DataComponents.ENTITY_DATA);
     world.addFreshEntity(entity);
-    if (this.canBeDepleted()) {
-      stack.hurtAndBreak(1,player,playerEntity -> playerEntity.broadcastBreakEvent(context.getHand()));
-    }
+
     return InteractionResult.SUCCESS;
   }
 
@@ -62,7 +62,7 @@ public class NetItem extends Item {
     CompoundTag nbt = getNBTfromEntity(target);
     ItemStack filledNet = stack.copy();
     filledNet.setCount(1);
-    filledNet.getOrCreateTag().put(KEY,nbt);
+    filledNet.set(DataComponents.ENTITY_DATA, CustomData.of(nbt));
     ItemStack newerStack = ItemUtils.createFilledResult(player.getItemInHand(hand),player,filledNet);
     target.discard();
     player.getCooldowns().addCooldown(ModItems.net_item, 5);
@@ -73,32 +73,22 @@ public class NetItem extends Item {
   static Set<String> warned;
 
   @Override
-  public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+  public void appendHoverText(ItemStack stack, TooltipContext worldIn, List<Component> tooltip, TooltipFlag flagIn) {
     super.appendHoverText(stack, worldIn, tooltip, flagIn);
     if (containsEntity(stack)) {
       CompoundTag holder = getEntityData(stack);
       String id = holder.getString("id");
-      EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(id));
+      EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(id));
       tooltip.add(type.getDescription());
       tooltip.add(Component.translatable("mobcatcher.health").append(": "+ getEntityData(stack).getDouble("Health")));
     }
   }
 
   public static Component getNameFromStoredEntity(ItemStack stack) {
-    CompoundTag holder = getEntityData(stack);
-    if (holder.contains("CustomName", Tag.TAG_STRING)) {
-      String s = holder.getString("CustomName");
-      try {
-        return Component.Serializer.fromJson(s);
-      } catch (Exception exception) {
-        if (!warned.contains(s)) {
-          LOGGER.warn("Failed to parse entity custom name {}", s, exception);
-          warned.add(s);
-        }
-      }
+    if (stack.has(DataComponents.CUSTOM_NAME)) {
+      return stack.get(DataComponents.CUSTOM_NAME);
     }
-    String id = holder.getString("id");
-    EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(id));
+    EntityType<?> type = getType(stack);
     return type.getDescription();
   }
 
@@ -123,15 +113,11 @@ public class NetItem extends Item {
   //helper methods
 
   public static boolean containsEntity(@Nonnull ItemStack stack) {
-    return stack.hasTag() && stack.getTag().contains(KEY);
+    return stack.has(DataComponents.ENTITY_DATA);
   }
 
   public static CompoundTag getEntityData(ItemStack stack) {
-    return containsEntity(stack) ?  stack.getTag().getCompound(KEY) : new CompoundTag();
-  }
-
-  public static String getEntityID(CompoundTag nbt) {
-    return nbt.getString("id");
+    return containsEntity(stack) ?  stack.get(DataComponents.ENTITY_DATA).copyTag() : new CompoundTag();
   }
 
   private static boolean isBlacklisted(EntityType<?> type) {
@@ -144,22 +130,35 @@ public class NetItem extends Item {
 
   }
 
-  @Nullable
-  public static Entity getEntityFromNBT(CompoundTag nbt, Level world, boolean withInfo) {
-    if (nbt == null)return null;
-    Entity entity = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(getEntityID(nbt))).create(world);
-    if (withInfo) entity.load(nbt);
-    return entity;
+  private static final MapCodec<EntityType<?>> ENTITY_TYPE_FIELD_CODEC = BuiltInRegistries.ENTITY_TYPE
+          .byNameCodec().fieldOf("id");
+
+  public static EntityType<?> getType(ItemStack pStack) {
+    CustomData customdata = pStack.getOrDefault(DataComponents.ENTITY_DATA, CustomData.EMPTY);
+    return !customdata.isEmpty() ? customdata.read(ENTITY_TYPE_FIELD_CODEC).getOrThrow() : EntityType.PIG;
   }
 
   @Nullable
   public static Entity getEntityFromStack(ItemStack stack, Level world, boolean withInfo) {
-    return getEntityFromNBT(stack.getTagElement(KEY),world,withInfo);
+    CustomData customdata = stack.getOrDefault(DataComponents.ENTITY_DATA, CustomData.EMPTY);
+    if (customdata.isEmpty()) return null;
+    EntityType<?> type = customdata.read(ENTITY_TYPE_FIELD_CODEC).getOrThrow();
+    Entity entity = type.create(world);
+    if (withInfo) {
+      entity.load(customdata.copyTag());
+    }
+    return entity;
   }
 
   public static CompoundTag getNBTfromEntity(Entity entity) {
     CompoundTag nbt = new CompoundTag();
     entity.save(nbt);
     return nbt;
+  }
+
+  @Override
+  public Projectile asProjectile(Level level, Position position, ItemStack itemStack, Direction direction) {
+    NetEntity entity = new NetEntity(position.x(),position.y(),position.z(),level,itemStack);
+    return entity;
   }
 }
