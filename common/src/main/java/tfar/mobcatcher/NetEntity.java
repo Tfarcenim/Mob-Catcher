@@ -13,7 +13,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 
-import javax.annotation.Nonnull;
 
 public class NetEntity extends ThrowableItemProjectile {
 
@@ -28,7 +27,6 @@ public class NetEntity extends ThrowableItemProjectile {
         this.stack = newStack;
     }
 
-    @Nonnull
     @Override
     protected Item getDefaultItem() {
         return ModItems.net_item;

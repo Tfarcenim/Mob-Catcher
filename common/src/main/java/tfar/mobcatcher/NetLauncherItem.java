@@ -14,7 +14,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 
 public class NetLauncherItem extends Item {
 
@@ -59,6 +58,7 @@ public class NetLauncherItem extends Item {
   /**
    * Called when the player stops using an Item (stops holding the right mouse button).
    */
+  @Override
   public void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
     if (entityLiving instanceof Player player) {
       ItemStack stackAmmo = this.findNet(player);
@@ -113,8 +113,8 @@ public class NetLauncherItem extends Item {
   /**
    * Called when the equipped item is right clicked.
    */
-  @Nonnull
-  public InteractionResultHolder<ItemStack> use(Level worldIn, Player player, @Nonnull InteractionHand hand) {
+  @Override
+  public InteractionResultHolder<ItemStack> use(Level worldIn, Player player, InteractionHand hand) {
     ItemStack stack = player.getItemInHand(hand);
     if (player.isCrouching()){
       boolean capture = isCaptureMode(stack);
@@ -140,8 +140,7 @@ public class NetLauncherItem extends Item {
   public static final Component RELEASE = Component.translatable("mobcatcher.releasing");
 
   @Override
-  @Nonnull
-  public Component getName(@Nonnull ItemStack stack) {
+  public Component getName(ItemStack stack) {
     MutableComponent base = (MutableComponent) super.getName(stack);
     return base.append(" (").append(isCaptureMode(stack) ? CAPTURE : RELEASE).append(")");
   }

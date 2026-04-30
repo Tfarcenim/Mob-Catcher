@@ -25,7 +25,6 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 
@@ -40,11 +39,8 @@ public class NetItem extends Item implements ProjectileItem {
   }
 
   @Override
-  @Nonnull
   public InteractionResult useOn(UseOnContext context) {
-    Player player = context.getPlayer();
     Level world = context.getLevel();
-    if (player == null)return InteractionResult.FAIL;
     ItemStack stack = context.getItemInHand();
     if (world.isClientSide() || !containsEntity(stack)) return InteractionResult.FAIL;
     Entity entity = getEntityFromStack(stack, world, true);
@@ -93,8 +89,7 @@ public class NetItem extends Item implements ProjectileItem {
   }
 
   @Override
-  @Nonnull
-  public Component getName(@Nonnull ItemStack stack) {
+  public Component getName(ItemStack stack) {
     Component nameC = super.getName(stack);
     if (!containsEntity(stack))
       return nameC;
@@ -112,7 +107,7 @@ public class NetItem extends Item implements ProjectileItem {
 
   //helper methods
 
-  public static boolean containsEntity(@Nonnull ItemStack stack) {
+  public static boolean containsEntity(ItemStack stack) {
     return stack.has(DataComponents.ENTITY_DATA);
   }
 
