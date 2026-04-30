@@ -13,6 +13,6 @@ public class ModItems {
             .setTrackingRange(128)
             .sized(.6f, .6f)
             .build("net");
-    public static Item net_item = new NetItem(new Item.Properties().tab(CreativeModeTab.TAB_COMBAT));
-    public static Item net_launcher = new NetLauncherItem(new Item.Properties().tab(CreativeModeTab.TAB_COMBAT));
+    public static Item net_item = new NetItem(new Item.Properties());
+    public static Item net_launcher = new NetLauncherItem(new Item.Properties());
 }

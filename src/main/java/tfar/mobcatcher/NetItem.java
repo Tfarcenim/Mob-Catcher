@@ -3,6 +3,8 @@ package tfar.mobcatcher;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -45,7 +47,7 @@ public class NetItem extends Item {
     Level world = context.getLevel();
     if (player == null)return InteractionResult.FAIL;
     ItemStack stack = context.getItemInHand();
-    if (world.isClientSide || !containsEntity(stack)) return InteractionResult.FAIL;
+    if (world.isClientSide() || !containsEntity(stack)) return InteractionResult.FAIL;
     Entity entity = getEntityFromStack(stack, world, true);
     BlockPos blockPos = context.getClickedPos();
     entity.absMoveTo(blockPos.getX() + 0.5, blockPos.getY() + 1, blockPos.getZ() + 0.5, 0, 0);
@@ -68,7 +70,7 @@ public class NetItem extends Item {
     target.discard();
     player.getCooldowns().addCooldown(ModItems.net_item, 5);
     player.setItemInHand(hand, newerStack);
-    return InteractionResult.sidedSuccess(player.level.isClientSide);
+    return InteractionResult.sidedSuccess(player.level().isClientSide());
   }
 
   static Set<String> warned;
@@ -79,7 +81,7 @@ public class NetItem extends Item {
     if (containsEntity(stack)) {
       CompoundTag holder = getEntityData(stack);
       String id = holder.getString("id");
-      EntityType<?> type = Registry.ENTITY_TYPE.get(new ResourceLocation(id));
+      EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(id));
       tooltip.add(type.getDescription());
       tooltip.add(Component.translatable("mobcatcher.health").append(": "+ getEntityData(stack).getDouble("Health")));
     }
@@ -99,7 +101,7 @@ public class NetItem extends Item {
       }
     }
     String id = holder.getString("id");
-    EntityType<?> type = Registry.ENTITY_TYPE.get(new ResourceLocation(id));
+    EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(id));
     return type.getDescription();
   }
 
@@ -148,7 +150,7 @@ public class NetItem extends Item {
   @Nullable
   public static Entity getEntityFromNBT(CompoundTag nbt, Level world, boolean withInfo) {
     if (nbt == null)return null;
-    Entity entity = Registry.ENTITY_TYPE.get(new ResourceLocation(getEntityID(nbt))).create(world);
+    Entity entity = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(getEntityID(nbt))).create(world);
     if (withInfo) entity.load(nbt);
     return entity;
   }

@@ -1,5 +1,6 @@
 package tfar.mobcatcher;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -42,7 +43,7 @@ public class MobCatcher {
   public static final TagKey<EntityType<?>> blacklisted = create("blacklisted");
 
   private static TagKey<EntityType<?>> create(String pName) {
-    return TagKey.create(Registry.ENTITY_TYPE_REGISTRY, id(pName));
+    return TagKey.create(Registries.ENTITY_TYPE, id(pName));
   }
   public MobCatcher() {
     ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER_SPEC);
@@ -85,9 +86,9 @@ public class MobCatcher {
   }
 
     public void registerItems(RegisterEvent e) {
-      registerOb(e,Registry.ITEM_REGISTRY,"net", ModItems.net_item);
-      registerOb(e,Registry.ITEM_REGISTRY,"net_launcher", ModItems.net_launcher);
-      registerOb(e,Registry.ENTITY_TYPE_REGISTRY,"net", ModItems.net);
+      registerOb(e, Registries.ITEM,"net", ModItems.net_item);
+      registerOb(e,Registries.ITEM,"net_launcher", ModItems.net_launcher);
+      registerOb(e,Registries.ENTITY_TYPE,"net", ModItems.net);
     }
 
     private static <T> void registerOb(RegisterEvent e, ResourceKey<? extends Registry<T>>resourceKey, String name, T obj) {

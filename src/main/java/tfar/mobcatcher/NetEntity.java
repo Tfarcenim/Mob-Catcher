@@ -39,11 +39,11 @@ public class NetEntity extends ThrowableItemProjectile {
         super.onHitBlock(result);
         boolean containsEntity = NetItem.containsEntity(stack);
         if (containsEntity) {
-            Entity entity = NetItem.getEntityFromStack(stack, level, true);
+            Entity entity = NetItem.getEntityFromStack(stack, level(), true);
             BlockPos pos = result.getBlockPos();
             entity.absMoveTo(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0);
             stack.removeTagKey(NetItem.KEY);
-            level.addFreshEntity(entity);
+            level().addFreshEntity(entity);
             spawnAtLocation(stack);
             if (stack.isDamageableItem()) {
                 Entity owner = this.getOwner();

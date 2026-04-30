@@ -1,7 +1,8 @@
 package tfar.mobcatcher.datagen.providers.assets;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.PackOutput;
 import tfar.mobcatcher.MobCatcher;
-import net.minecraft.data.DataGenerator;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.server.packs.PackType;
@@ -11,7 +12,7 @@ import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class ModItemModelProvider extends ItemModelProvider {
-    public ModItemModelProvider(DataGenerator generator,  ExistingFileHelper existingFileHelper) {
+    public ModItemModelProvider(PackOutput generator, ExistingFileHelper existingFileHelper) {
         super(generator, MobCatcher.MODID, existingFileHelper);
     }
 
@@ -21,17 +22,17 @@ public class ModItemModelProvider extends ItemModelProvider {
 
 
     protected void makeSimpleBlockItem(Item item, ResourceLocation loc) {
-        getBuilder(Registry.ITEM.getKey(item).toString())
+        getBuilder(BuiltInRegistries.ITEM.getKey(item).toString())
                 .parent(getExistingFile(loc));
     }
 
     protected void makeSimpleBlockItem(Item item) {
-        makeSimpleBlockItem(item, new ResourceLocation(MobCatcher.MODID, "block/" + Registry.ITEM.getKey(item).getPath()));
+        makeSimpleBlockItem(item, new ResourceLocation(MobCatcher.MODID, "block/" + BuiltInRegistries.ITEM.getKey(item).getPath()));
     }
 
 
     protected void makeOneLayerItem(Item item, ResourceLocation texture) {
-        String path = Registry.ITEM.getKey(item).getPath();
+        String path = BuiltInRegistries.ITEM.getKey(item).getPath();
         if (existingFileHelper.exists(new ResourceLocation(texture.getNamespace(), "item/" + texture.getPath())
                 , PackType.CLIENT_RESOURCES, ".png", "textures")) {
             getBuilder(path).parent(getExistingFile(mcLoc("item/generated")))
@@ -42,13 +43,13 @@ public class ModItemModelProvider extends ItemModelProvider {
     }
 
     protected void makeOneLayerItem(Item item) {
-        ResourceLocation texture = Registry.ITEM.getKey(item);
+        ResourceLocation texture = BuiltInRegistries.ITEM.getKey(item);
         makeOneLayerItem(item, texture);
     }
 
     //wood_to_iron_frame_upgrade
     protected void registerUpgrade(Item item) {
-        String name = Registry.ITEM.getKey(item).getPath();
+        String name = BuiltInRegistries.ITEM.getKey(item).getPath();
         registerUpgrade(name);
     }
     protected void registerUpgrade(String name) {

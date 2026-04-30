@@ -1,15 +1,15 @@
 package tfar.mobcatcher.datagen.providers.assets;
 
+import net.minecraft.data.PackOutput;
 import tfar.mobcatcher.MobCatcher;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.data.LanguageProvider;
 import org.codehaus.plexus.util.StringUtils;
 
 
 public class ModLangProvider extends LanguageProvider {
-    public ModLangProvider(DataGenerator gen) {
+    public ModLangProvider(PackOutput gen) {
         super(gen, MobCatcher.MODID, "en_us");
     }
 
