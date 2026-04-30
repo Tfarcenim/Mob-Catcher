@@ -17,6 +17,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -56,25 +57,22 @@ public class NetItem extends Item {
     return InteractionResult.SUCCESS;
   }
 
-  @Override
-  public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
-    if (target.getCommandSenderWorld().isClientSide || containsEntity(stack)|| !isValidCapture(target))
+  public static InteractionResult interactLivingEntityS(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
+    if (containsEntity(stack)|| !isValidCapture(target))
       return InteractionResult.FAIL;
     CompoundTag nbt = getNBTfromEntity(target);
-    ItemStack newerStack = stack.split(1);
-    newerStack.getOrCreateTag().put(KEY,nbt);
-    player.swing(hand);
- //   player.setItemInHand(hand,stack);
-    if(!player.addItem(newerStack)){
-      ItemEntity itemEntity = new ItemEntity(player.level,player.getX(),player.getY(),player.getZ(),newerStack);
-      player.level.addFreshEntity(itemEntity);
-    }
+    ItemStack filledNet = stack.copy();
+    filledNet.setCount(1);
+    filledNet.getOrCreateTag().put(KEY,nbt);
+    ItemStack newerStack = ItemUtils.createFilledResult(player.getItemInHand(hand),player,filledNet);
     target.discard();
-    player.getCooldowns().addCooldown(this, 5);
-    return InteractionResult.SUCCESS;
+    player.getCooldowns().addCooldown(ModItems.net_item, 5);
+    player.setItemInHand(hand, newerStack);
+    return InteractionResult.sidedSuccess(player.level.isClientSide);
   }
 
   static Set<String> warned;
+
   @Override
   public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
     super.appendHoverText(stack, worldIn, tooltip, flagIn);

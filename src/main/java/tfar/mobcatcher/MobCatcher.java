@@ -1,6 +1,12 @@
 package tfar.mobcatcher;
 
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.registries.RegisterEvent;
 import tfar.mobcatcher.datagen.ModDatagen;
 import net.minecraft.core.Position;
@@ -45,6 +51,18 @@ public class MobCatcher {
     bus.addListener(this::registerItems);
     bus.addListener(this::init);
     bus.addListener(this::configChange);
+    MinecraftForge.EVENT_BUS.addListener(this::onEntityInteract);
+  }
+
+  void onEntityInteract(PlayerInteractEvent.EntityInteractSpecific event) {
+    Player player = event.getEntity();
+    Entity target = event.getTarget();
+    InteractionHand hand = event.getHand();
+    ItemStack stack = player.getItemInHand(hand);
+    if (stack.is(ModItems.net_item) && target instanceof LivingEntity livingTarget) {
+      event.setCancellationResult(NetItem.interactLivingEntityS(stack,player,livingTarget,hand));
+      event.setCanceled(true);
+    }
   }
 
   private void configChange(ModConfigEvent e) {

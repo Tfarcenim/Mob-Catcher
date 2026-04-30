@@ -5,14 +5,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nonnull;
 
@@ -46,8 +44,7 @@ public class NetEntity extends ThrowableItemProjectile {
             entity.absMoveTo(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0);
             stack.removeTagKey(NetItem.KEY);
             level.addFreshEntity(entity);
-            ItemEntity emptynet = createDroppedItemAtEntity(this, stack.copy());
-            level.addFreshEntity(emptynet);
+            spawnAtLocation(stack);
             if (stack.isDamageableItem()) {
                 Entity owner = this.getOwner();
                 if (owner instanceof LivingEntity) {
@@ -55,7 +52,10 @@ public class NetEntity extends ThrowableItemProjectile {
                     });
                 }
             }
+        } else {
+            spawnAtLocation(stack);
         }
+        discard();
     }
 
     @Override
@@ -64,15 +64,10 @@ public class NetEntity extends ThrowableItemProjectile {
         Entity target = result.getEntity();
         if (!NetItem.isValidCapture(target)) return;
         CompoundTag nbt = NetItem.getNBTfromEntity(target);
-        ItemStack newStack = stack.copy();
-        newStack.getOrCreateTag().put(NetItem.KEY, nbt);
-        ItemEntity itemEntity = createDroppedItemAtEntity(target, newStack);
-        level.addFreshEntity(itemEntity);
+        stack.getOrCreateTag().put(NetItem.KEY, nbt);
+        spawnAtLocation(stack);
         target.discard();
-    }
-
-    protected ItemEntity createDroppedItemAtEntity(Entity entity, ItemStack stack) {
-        return new ItemEntity(this.level, entity.getX(), entity.getY(), entity.getZ(), stack);
+        discard();
     }
 
     public void addAdditionalSaveData(CompoundTag nbt) {
@@ -80,7 +75,6 @@ public class NetEntity extends ThrowableItemProjectile {
         if (!stack.isEmpty()) {
             nbt.put(MobCatcher.MODID, stack.save(stack.getOrCreateTag()));
         }
-
     }
 
     public void readAdditionalSaveData(CompoundTag nbt) {
