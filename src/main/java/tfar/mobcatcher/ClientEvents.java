@@ -11,6 +11,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 public class ClientEvents {
     @SubscribeEvent
     public static void registerModels(FMLClientSetupEvent event) {
-        EntityRenderers.register(Objs.net, ThrownItemRenderer::new);
+        EntityRenderers.register(ModItems.net, ThrownItemRenderer::new);
     }
 }

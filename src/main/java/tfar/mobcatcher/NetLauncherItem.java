@@ -67,14 +67,14 @@ public class NetLauncherItem extends Item {
       if (i < 0) return;
 
       if (!stackAmmo.isEmpty() || player.getAbilities().instabuild) {
-        if (stackAmmo.isEmpty()) stackAmmo = new ItemStack(Objs.net_item);
+        if (stackAmmo.isEmpty()) stackAmmo = new ItemStack(ModItems.net_item);
 
         float f = getNetVelocity(i);
 
         if (f >= 0.1) {
 
           if (!worldIn.isClientSide) {
-            NetItem itemNet = stackAmmo.getItem() instanceof NetItem ? (NetItem)stackAmmo.getItem() : (NetItem) Objs.net_item;
+            NetItem itemNet = stackAmmo.getItem() instanceof NetItem ? (NetItem)stackAmmo.getItem() : (NetItem) ModItems.net_item;
             NetEntity netEntity = itemNet.createNet(worldIn, player, stackAmmo);
             netEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, f * 3.0F, 0);
 

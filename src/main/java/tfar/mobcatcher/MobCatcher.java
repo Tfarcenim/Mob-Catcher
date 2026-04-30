@@ -29,10 +29,14 @@ import javax.annotation.Nonnull;
 public class MobCatcher {
   public static final String MODID = "mobcatcher";
 
-  public static final TagKey<EntityType<?>> blacklisted = create(new ResourceLocation(MobCatcher.MODID,"blacklisted").toString());
+  public static ResourceLocation id(String path) {
+    return new ResourceLocation(MODID,path);
+  }
+
+  public static final TagKey<EntityType<?>> blacklisted = create("blacklisted");
 
   private static TagKey<EntityType<?>> create(String pName) {
-    return TagKey.create(Registry.ENTITY_TYPE_REGISTRY, new ResourceLocation(pName));
+    return TagKey.create(Registry.ENTITY_TYPE_REGISTRY, id(pName));
   }
   public MobCatcher() {
     ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER_SPEC);
@@ -47,8 +51,8 @@ public class MobCatcher {
     if (e.getConfig().getModId().equals(MODID)) {
       int durability = ServerConfig.net_durability.get();
       if (durability > -1) {
-        Objs.net_item.maxStackSize = 1;
-        Objs.net_item.maxDamage = durability;
+        ModItems.net_item.maxStackSize = 1;
+        ModItems.net_item.maxDamage = durability;
       }
     }
   }
@@ -63,9 +67,9 @@ public class MobCatcher {
   }
 
     public void registerItems(RegisterEvent e) {
-      registerOb(e,Registry.ITEM_REGISTRY,"net", Objs.net_item);
-      registerOb(e,Registry.ITEM_REGISTRY,"net_launcher", Objs.net_launcher);
-      registerOb(e,Registry.ENTITY_TYPE_REGISTRY,"net",Objs.net);
+      registerOb(e,Registry.ITEM_REGISTRY,"net", ModItems.net_item);
+      registerOb(e,Registry.ITEM_REGISTRY,"net_launcher", ModItems.net_launcher);
+      registerOb(e,Registry.ENTITY_TYPE_REGISTRY,"net", ModItems.net);
     }
 
     private static <T> void registerOb(RegisterEvent e, ResourceKey<? extends Registry<T>>resourceKey, String name, T obj) {
@@ -73,7 +77,7 @@ public class MobCatcher {
     }
 
     public void init(FMLCommonSetupEvent event) {
-      DispenserBlock.registerBehavior(Objs.net_item, new AbstractProjectileDispenseBehavior() {
+      DispenserBlock.registerBehavior(ModItems.net_item, new AbstractProjectileDispenseBehavior() {
         /**
          * Return the projectile entity spawned by this dispense behavior.
          */

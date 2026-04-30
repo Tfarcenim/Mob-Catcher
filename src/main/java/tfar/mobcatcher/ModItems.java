@@ -5,7 +5,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 
-public class Objs {
+public class ModItems {
     public static EntityType<NetEntity> net = EntityType.Builder
             .<NetEntity>of(NetEntity::new, MobCategory.MISC)
             .setShouldReceiveVelocityUpdates(true)

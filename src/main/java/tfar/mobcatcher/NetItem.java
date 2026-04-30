@@ -20,10 +20,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
@@ -58,16 +58,13 @@ public class NetItem extends Item {
 
   @Override
   public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
-    if (target.getCommandSenderWorld().isClientSide || target instanceof Player || !target.isAlive() || containsEntity(stack))
+    if (target.getCommandSenderWorld().isClientSide || containsEntity(stack)|| !isValidCapture(target))
       return InteractionResult.FAIL;
-    EntityType<?> entityID = target.getType();
-    if (isBlacklisted(entityID)) return InteractionResult.FAIL;
-    ItemStack newStack = stack.copy();
     CompoundTag nbt = getNBTfromEntity(target);
-    ItemStack newerStack = newStack.split(1);
+    ItemStack newerStack = stack.split(1);
     newerStack.getOrCreateTag().put(KEY,nbt);
     player.swing(hand);
-    player.setItemInHand(hand, newStack);
+ //   player.setItemInHand(hand,stack);
     if(!player.addItem(newerStack)){
       ItemEntity itemEntity = new ItemEntity(player.level,player.getX(),player.getY(),player.getZ(),newerStack);
       player.level.addFreshEntity(itemEntity);
@@ -140,18 +137,27 @@ public class NetItem extends Item {
     return nbt.getString("id");
   }
 
-  public static boolean isBlacklisted(EntityType<?> type) {
-    return type == EntityType.PLAYER || type.is(MobCatcher.blacklisted);
+  private static boolean isBlacklisted(EntityType<?> type) {
+    return type.is(MobCatcher.blacklisted);
   }
 
+  public static boolean isValidCapture(Entity target) {
+    return !(target instanceof Player) && !isBlacklisted(target.getType()) && target.isAlive() &&
+            !target.isPassenger() && !target.isVehicle();
+
+  }
+
+  @Nullable
   public static Entity getEntityFromNBT(CompoundTag nbt, Level world, boolean withInfo) {
+    if (nbt == null)return null;
     Entity entity = Registry.ENTITY_TYPE.get(new ResourceLocation(getEntityID(nbt))).create(world);
     if (withInfo) entity.load(nbt);
     return entity;
   }
 
+  @Nullable
   public static Entity getEntityFromStack(ItemStack stack, Level world, boolean withInfo) {
-    return getEntityFromNBT(stack.getOrCreateTag().getCompound(KEY),world,withInfo);
+    return getEntityFromNBT(stack.getTagElement(KEY),world,withInfo);
   }
 
   public static CompoundTag getNBTfromEntity(Entity entity) {
