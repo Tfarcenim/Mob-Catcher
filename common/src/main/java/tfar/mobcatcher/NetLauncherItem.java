@@ -7,7 +7,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -57,14 +56,16 @@ public class NetLauncherItem extends Item {
 
   /**
    * Called when the player stops using an Item (stops holding the right mouse button).
+   *
+   * @return
    */
   @Override
-  public void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
+  public boolean releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
     if (entityLiving instanceof Player player) {
       ItemStack stackAmmo = this.findNet(player);
 
       int i = this.getUseDuration(stackAmmo,player) - timeLeft;
-      if (i < 0) return;
+      if (i < 0) return false;
 
       if (!stackAmmo.isEmpty() || player.getAbilities().instabuild) {
         if (stackAmmo.isEmpty()) stackAmmo = new ItemStack(ModItems.net_item);
@@ -73,7 +74,7 @@ public class NetLauncherItem extends Item {
 
         if (f >= 0.1) {
 
-          if (!worldIn.isClientSide) {
+          if (!worldIn.isClientSide()) {
             NetItem itemNet = stackAmmo.getItem() instanceof NetItem ? (NetItem)stackAmmo.getItem() : (NetItem) ModItems.net_item;
             NetEntity netEntity = itemNet.createNet(worldIn, player, stackAmmo);
             netEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, f * 3.0F, 0);
@@ -93,6 +94,7 @@ public class NetLauncherItem extends Item {
         }
       }
     }
+    return false;
   }
 
   /**
@@ -114,7 +116,7 @@ public class NetLauncherItem extends Item {
    * Called when the equipped item is right clicked.
    */
   @Override
-  public InteractionResultHolder<ItemStack> use(Level worldIn, Player player, InteractionHand hand) {
+  public InteractionResult use(Level worldIn, Player player, InteractionHand hand) {
     ItemStack stack = player.getItemInHand(hand);
     if (player.isCrouching()){
       boolean capture = isCaptureMode(stack);
@@ -123,16 +125,16 @@ public class NetLauncherItem extends Item {
       } else {
         stack.remove(ModDataComponents.RELEASE);
       }
-      player.displayClientMessage(capture? RELEASE: CAPTURE,true);
-      return InteractionResultHolder.sidedSuccess(stack, worldIn.isClientSide());
+      player.sendOverlayMessage(capture? RELEASE: CAPTURE);
+      return InteractionResult.SUCCESS;
     }
     boolean hasAmmo = !this.findNet(player).isEmpty();
 
     if (!player.getAbilities().instabuild && !hasAmmo) {
-      return new InteractionResultHolder<>(InteractionResult.FAIL, stack);
+      return InteractionResult.FAIL;
     } else {
       player.startUsingItem(hand);
-      return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+      return InteractionResult.SUCCESS;
     }
   }
 
@@ -142,7 +144,7 @@ public class NetLauncherItem extends Item {
   @Override
   public Component getName(ItemStack stack) {
     MutableComponent base = (MutableComponent) super.getName(stack);
-    return base.append(" (").append(isCaptureMode(stack) ? CAPTURE : RELEASE).append(")");
+    return base.copy().append(" (").append(isCaptureMode(stack) ? CAPTURE : RELEASE).append(")");
   }
 
   //helpers

@@ -13,23 +13,24 @@ import tfar.mobcatcher.ModItems;
 import java.util.concurrent.CompletableFuture;
 
 public class ModRecipeProvider extends RecipeProvider {
-    public ModRecipeProvider(PackOutput pGenerator, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(pGenerator,lookupProvider);
+    protected ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
     }
 
 
+
     @Override
-    protected void buildRecipes(RecipeOutput pRecipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.net_item)
+    protected void buildRecipes() {
+        shaped(RecipeCategory.MISC, ModItems.net_item)
                 .define('w', Tags.Items.INGOTS_IRON)
                 .define('e',Items.ENDER_PEARL)
                 .pattern(" w ")
                 .pattern("wew")
                 .pattern(" w ")
                 .unlockedBy(getHasName(Items.ENDER_PEARL),has(Items.ENDER_PEARL))
-                .save(pRecipeOutput);
+                .save(output);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.net_launcher)
+        shaped(RecipeCategory.MISC, ModItems.net_launcher)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('b',Items.ENDER_PEARL)
                 .define('e',Items.BOW)
@@ -37,6 +38,22 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern(" eb")
                 .pattern("iii")
                 .unlockedBy(getHasName(Items.ENDER_PEARL),has(Items.ENDER_PEARL))
-                .save(pRecipeOutput);
+                .save(output);
+    }
+
+    public static class Runner extends RecipeProvider.Runner {
+        public Runner(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries) {
+            super(packOutput, registries);
+        }
+
+        @Override
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+            return new ModRecipeProvider(registries, output);
+        }
+
+        @Override
+        public String getName() {
+            return "Mob Catcher Recipes";
+        }
     }
 }

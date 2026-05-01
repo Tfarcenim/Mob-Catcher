@@ -1,7 +1,7 @@
 package tfar.mobcatcher;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import org.apache.logging.log4j.LogManager;
@@ -17,8 +17,8 @@ public class MobCatcher {
 
     }
 
-    public static ResourceLocation id(String path) {
-      return ResourceLocation.fromNamespaceAndPath(MODID,path);
+    public static Identifier id(String path) {
+      return Identifier.fromNamespaceAndPath(MODID,path);
     }
 
     private static TagKey<EntityType<?>> create(String pName) {

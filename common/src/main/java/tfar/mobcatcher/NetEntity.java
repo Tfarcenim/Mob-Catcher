@@ -3,12 +3,13 @@ package tfar.mobcatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -16,15 +17,12 @@ import net.minecraft.world.phys.EntityHitResult;
 
 public class NetEntity extends ThrowableItemProjectile {
 
-    public ItemStack stack = ItemStack.EMPTY;
-
     public NetEntity(EntityType<? extends ThrowableItemProjectile> entityType, Level world) {
         super(entityType, world);
     }
 
     public NetEntity(double x, double y, double z, Level world, ItemStack newStack) {
-        super(ModItems.net, x, y, z, world);
-        this.stack = newStack;
+        super(ModItems.net, x, y, z, world,newStack);
     }
 
     @Override
@@ -36,14 +34,16 @@ public class NetEntity extends ThrowableItemProjectile {
     @Override
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
+        ItemStack stack = getItem();
         boolean containsEntity = NetItem.containsEntity(stack);
         if (containsEntity) {
             Entity entity = NetItem.getEntityFromStack(stack, level(), true);
             BlockPos pos = result.getBlockPos();
-            entity.absMoveTo(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0);
+
+            entity.snapTo(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0);
             stack.remove(DataComponents.ENTITY_DATA);
             level().addFreshEntity(entity);
-            spawnAtLocation(stack);
+            spawnAtLocation((ServerLevel) level(),stack);
             /*if (stack.isDamageableItem()) {
                 Entity owner = this.getOwner();
                 if (owner instanceof LivingEntity) {
@@ -51,7 +51,7 @@ public class NetEntity extends ThrowableItemProjectile {
                 }
             }*/
         } else {
-            spawnAtLocation(stack);
+            spawnAtLocation((ServerLevel) level(),stack);
         }
         discard();
     }
@@ -62,21 +62,10 @@ public class NetEntity extends ThrowableItemProjectile {
         Entity target = result.getEntity();
         if (!NetItem.isValidCapture(target)) return;
         CompoundTag nbt = NetItem.getNBTfromEntity(target);
-        stack.set(DataComponents.ENTITY_DATA, CustomData.of(nbt));
-        spawnAtLocation(stack);
+
+        getItem().set(DataComponents.ENTITY_DATA, TypedEntityData.of(target.getType(),nbt));
+        spawnAtLocation((ServerLevel)level() ,getItem());
         target.discard();
         discard();
-    }
-
-    public void addAdditionalSaveData(CompoundTag nbt) {
-        super.addAdditionalSaveData(nbt);
-        if (!stack.isEmpty()) {
-            nbt.put(MobCatcher.MODID, stack.save(registryAccess()));
-        }
-    }
-
-    public void readAdditionalSaveData(CompoundTag nbt) {
-        super.readAdditionalSaveData(nbt);
-        stack = ItemStack.parseOptional(registryAccess(),nbt.getCompound(MobCatcher.MODID));
     }
 }

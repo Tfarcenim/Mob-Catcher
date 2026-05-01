@@ -3,5 +3,6 @@
   "item.mobcatcher.net": "Mob Capture Device",
   "mobcatcher.capturing" : "Capturing",
   "mobcatcher.releasing" : "Releasing",
+  "itemGroup.mobcatcher" : "Mob Catcher",
   "mobcatcher.health" : "Health"
 }
