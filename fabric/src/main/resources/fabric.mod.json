@@ -1,0 +1,34 @@
+{
+    "schemaVersion": 1,
+    "id": "${mod_id}",
+    "version": "${version}",
+    "name": "${mod_name}",
+    "description": "${description}",
+    "authors": [
+        "${mod_author}"
+    ],
+    "contact": {
+        "homepage": "https://github.com/Tfarcenim/Mob-Catcher/issues",
+        "sources": "https://github.com/Tfarcenim/Mob-Catcher"
+    },
+    "accessWidener": "mobcatcher.accesswidener",
+    "license": "${license}",
+    "icon": "${mod_id}.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+          "tfar.mobcatcher.MobCatcherFabric"
+        ],
+        "client": ["tfar.mobcatcher.client.MobCatcherClientFabric"]
+    },
+    "mixins": [
+
+    ],
+    "depends": {
+        "fabricloader": ">=${fabric_loader_version}",
+        "fabric-api": "*",
+        "minecraft": ">=${minecraft_version}",
+        "java": ">=${java_version}"
+    }
+}
+  
