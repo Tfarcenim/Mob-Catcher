@@ -34,38 +34,42 @@ public class NetEntity extends ThrowableItemProjectile {
     @Override
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
-        ItemStack stack = getItem();
-        boolean containsEntity = NetItem.containsEntity(stack);
-        if (containsEntity) {
-            Entity entity = NetItem.getEntityFromStack(stack, level(), true);
-            BlockPos pos = result.getBlockPos();
+        if (!level().isClientSide()) {
+            ItemStack stack = getItem();
+            boolean containsEntity = NetItem.containsEntity(stack);
+            if (containsEntity) {
+                Entity entity = NetItem.getEntityFromStack(stack, level(), true);
+                BlockPos pos = result.getBlockPos();
 
-            entity.snapTo(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0);
-            stack.remove(DataComponents.ENTITY_DATA);
-            level().addFreshEntity(entity);
-            spawnAtLocation((ServerLevel) level(),stack);
+                entity.snapTo(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0);
+                stack.remove(DataComponents.ENTITY_DATA);
+                level().addFreshEntity(entity);
+                spawnAtLocation((ServerLevel) level(), stack);
             /*if (stack.isDamageableItem()) {
                 Entity owner = this.getOwner();
                 if (owner instanceof LivingEntity) {
                     stack.hurtAndBreak(1, (LivingEntity) owner);
                 }
             }*/
-        } else {
-            spawnAtLocation((ServerLevel) level(),stack);
+            } else {
+                spawnAtLocation((ServerLevel) level(), stack);
+            }
+            discard();
         }
-        discard();
     }
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
         super.onHitEntity(result);
-        Entity target = result.getEntity();
-        if (!NetItem.isValidCapture(target)) return;
-        CompoundTag nbt = NetItem.getNBTfromEntity(target);
+        if (!level().isClientSide()) {
+            Entity target = result.getEntity();
+            if (!NetItem.isValidCapture(target)) return;
+            CompoundTag nbt = NetItem.getNBTfromEntity(target);
 
-        getItem().set(DataComponents.ENTITY_DATA, TypedEntityData.of(target.getType(),nbt));
-        spawnAtLocation((ServerLevel)level() ,getItem());
-        target.discard();
-        discard();
+            getItem().set(DataComponents.ENTITY_DATA, TypedEntityData.of(target.getType(), nbt));
+            spawnAtLocation((ServerLevel) level(), getItem());
+            target.discard();
+            discard();
+        }
     }
 }
