@@ -1,6 +1,5 @@
 package tfar.mobcatcher;
 
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,16 +22,11 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Set;
 
 public class NetItem extends Item implements ProjectileItem {
-
-  public static final String KEY = "entity_holder";
-  private static final Logger LOGGER = LogUtils.getLogger();
-
 
   public NetItem(Properties properties) {
     super(properties);
